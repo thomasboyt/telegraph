@@ -1,0 +1,20 @@
+# unrelated code
+docs
+demo
+src
+
+# dotfiles
+.vscode
+.babelrc
+.eslintignore
+.eslintrc.js
+.gitignore
+.prettierrc.js
+jest.config.js
+tsconfig.build.json
+tsconfig.json
+
+# output
+coverage
+.nyc_output
+*.log
