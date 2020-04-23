@@ -26,11 +26,6 @@ export interface TelegraphConfig<T> {
 
 export type InputValues = number[];
 
-export interface SyncInputResult {
-  inputs: InputValues[];
-  disconnected: boolean[];
-}
-
 export const connectionStatusC = t.type({
   disconnected: t.boolean,
   lastFrame: t.number,
@@ -39,24 +34,6 @@ export const connectionStatusC = t.type({
 export type ConnectionStatus = t.TypeOf<typeof connectionStatusC>;
 
 export type DisconnectStatuses = boolean[];
-
-export interface VoidResult<C> {
-  code: C;
-}
-
-export interface ValueResult<T, C> {
-  value: T | null;
-  code: C;
-}
-
-export type ResultOk = 'ok';
-export type ResultPlayerOutOfRange = 'playerOutOfRange';
-export type ResultInRollback = 'inRollback';
-export type ResultNotSynchronized = 'notSynchronized';
-export type ResultInvalidPlayerHandle = 'invalidPlayerHandle';
-export type ResultPredictionThreshold = 'predictionThreshold';
-export type ResultPlayerAlreadyDisconnected = 'playerAlreadyDisconnected';
-export type ResultNotSupported = 'notSupported';
 
 export enum PlayerType {
   local,

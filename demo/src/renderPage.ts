@@ -54,3 +54,16 @@ export function onConnectButtonClick(cb: () => void): void {
   ) as HTMLElement;
   connectButton.onclick = cb;
 }
+
+export function renderCrashError(err: string | Error): void {
+  const errorMessage = err instanceof Error ? err.message : err;
+  const errorDetail = err instanceof Error && err.stack ? err.stack : '(none)';
+
+  const content = trim(`
+    state: ERRORED
+    error: ${errorMessage}
+    detail: ${errorDetail}
+  `);
+
+  (statusEl! as HTMLElement).innerText = content;
+}

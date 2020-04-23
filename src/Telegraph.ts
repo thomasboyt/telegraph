@@ -29,7 +29,7 @@ export class Telegraph<T> {
 
   /**
    * Call in:
-   * - Your primary run loop, after updating your game state, only if
+   * - Your fixed run loop, after updating your game state, only if
    *   `addLocalInput()` and `syncInput()` return `ok` result codes.
    * - Your onAdvanceFrame() callback, after updating game state.
    */
@@ -38,7 +38,7 @@ export class Telegraph<T> {
   }
 
   /**
-   * Call when your primary run loop has moved forward one tick, regardless of
+   * Call when your fixed run loop has moved forward one tick, regardless of
    * whether the game state was actually updated on this frame or not.
    */
   afterTick() {

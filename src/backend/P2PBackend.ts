@@ -1,23 +1,3 @@
-import {
-  ValueResult,
-  VoidResult,
-  ResultOk,
-  ResultPlayerOutOfRange,
-  ResultInRollback,
-  ResultNotSynchronized,
-  ResultInvalidPlayerHandle,
-  ResultPredictionThreshold,
-  ResultPlayerAlreadyDisconnected,
-  Player,
-  PlayerHandle,
-  TelegraphNetworkStats,
-  SyncInputResult,
-  TelegraphConfig,
-  ConnectionStatus,
-  TelegraphCallbacks,
-  PlayerType,
-  InputValues,
-} from '../types';
 import { NetworkEventInput } from '../network/networkEvents';
 import { Sync } from '../Sync';
 import { PeerJSSocket } from '../network/PeerJSSocket';
@@ -25,6 +5,26 @@ import { PeerJSEndpoint } from '../network/PeerJSEndpoint';
 import { assert } from '../util/assert';
 import { TelegraphMessage } from '../network/messages';
 import { log } from '../log';
+import {
+  Player,
+  PlayerHandle,
+  TelegraphNetworkStats,
+  TelegraphConfig,
+  ConnectionStatus,
+  TelegraphCallbacks,
+  PlayerType,
+  InputValues,
+} from '../types';
+import {
+  ValueResult,
+  VoidResult,
+  ResultOk,
+  ResultInvalidPlayerHandle,
+  ResultPlayerAlreadyDisconnected,
+  SyncInputResult,
+  AddPlayerResult,
+  AddLocalInputResult,
+} from '../resultTypes';
 import {
   TelegraphEventDisconnected,
   TelegraphEventConnected,
@@ -84,9 +84,7 @@ export class P2PBackend {
     });
   }
 
-  addPlayer(
-    player: Player
-  ): ValueResult<PlayerHandle, ResultOk | ResultPlayerOutOfRange> {
+  addPlayer(player: Player): AddPlayerResult {
     const queueIdx = player.playerNumber - 1;
 
     if (player.playerNumber < 1 || player.playerNumber > this.numPlayers) {
@@ -121,13 +119,7 @@ export class P2PBackend {
   addLocalInput(
     handle: PlayerHandle,
     inputValues: InputValues
-  ): VoidResult<
-    | ResultOk
-    | ResultInRollback
-    | ResultNotSynchronized
-    | ResultInvalidPlayerHandle
-    | ResultPredictionThreshold
-  > {
+  ): AddLocalInputResult {
     log('adding local input');
     if (this.sync.getInRollback()) {
       return { code: 'inRollback' };
@@ -160,7 +152,7 @@ export class P2PBackend {
     return { code: 'ok' };
   }
 
-  syncInput(): ValueResult<SyncInputResult, ResultOk | ResultNotSynchronized> {
+  syncInput(): SyncInputResult {
     if (this.synchronizing) {
       return { value: null, code: 'notSynchronized' };
     }
@@ -170,13 +162,11 @@ export class P2PBackend {
 
   incrementFrame(): VoidResult<ResultOk> {
     this.sync.incrementFrame();
-    this.postProcessUpdate();
     return { code: 'ok' };
   }
 
   /**
-   * this method is called after incrementFrame() happens, as well as after
-   * incoming WebRTC messages, and also after the runloop ticks.
+   * this method is called after runloop ticks and incoming WebRTC messages
    *
    * this is called doPoll() in GGPO, and does UDP polling in addition to
    * processing events and messages. because that's handled async in the

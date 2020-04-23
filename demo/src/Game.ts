@@ -1,11 +1,12 @@
 import Peer from 'peerjs';
 import {
   Telegraph,
-  SyncInputResult,
   TelegraphEvent,
   InputValues,
   SaveResult,
   PlayerType,
+  SyncInputResultValue,
+  AddLocalInputResult,
 } from '../../src';
 import * as V from './util/vectorMaths';
 import { Vector2 } from './util/vectorMaths';
@@ -14,7 +15,7 @@ import { Inputter } from './util/Inputter';
 import { keyCodes } from './util/keyCodes';
 import { hash } from './util/hash';
 import { interpolatePosition } from './util/interpolatePosition';
-import { updateStatus } from './renderPage';
+import { updateStatus, renderCrashError } from './renderPage';
 
 const FRAME_STEP = 1000 / 60;
 
@@ -26,6 +27,7 @@ const BALL_SPEED = 0.15;
 const GAME_WIDTH = 320;
 const GAME_HEIGHT = 240;
 
+// global so game state can use it for logging
 let frameCount = 0;
 
 interface Paddle {
@@ -239,13 +241,13 @@ class Renderer {
 }
 
 export class Game {
-  frameCount = 0;
+  private stopped = false;
 
-  telegraph: Telegraph<string>;
-  renderer = new Renderer();
-  inputter = new Inputter();
-  gameState = new GameState();
-  nonGameState = new NonGameState();
+  private telegraph: Telegraph<string>;
+  private renderer = new Renderer();
+  private inputter = new Inputter();
+  private gameState = new GameState();
+  private nonGameState = new NonGameState();
 
   constructor(peer: Peer, remotePeerId: string, localPlayerNumber: number) {
     this.renderer.createCanvas();
@@ -299,7 +301,7 @@ export class Game {
     });
   }
 
-  private advanceFrame({ inputs, disconnected }: SyncInputResult): void {
+  private advanceFrame({ inputs, disconnected }: SyncInputResultValue): void {
     this.gameState.update(inputs, disconnected);
     this.telegraph.advanceFrame();
   }
@@ -316,55 +318,67 @@ export class Game {
   }
 
   private runFixedUpdate(): void {
-    let addLocalInputResult;
-    if (this.nonGameState.localPlayerHandle !== null) {
-      const localInputs = this.inputter.getInputState();
-      addLocalInputResult = this.telegraph.addLocalInput(
-        this.nonGameState.localPlayerHandle,
-        localInputs
-      );
+    let didAdvance = false;
 
-      if (addLocalInputResult.code !== 'ok') {
-        console.warn(
-          'non-ok result for addLocalInput:',
-          addLocalInputResult.code
-        );
-      }
-    }
+    const addLocalInputResult = this.readInput();
 
     if (!addLocalInputResult || addLocalInputResult.code === 'ok') {
       const inputResult = this.telegraph.syncInput();
       if (inputResult.code === 'ok') {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.advanceFrame(inputResult.value!);
-        frameCount += 1;
-        if (frameCount % 60 === 0) {
-          const checksum = hash(JSON.stringify(this.gameState));
-          console.log('frame', frameCount, checksum);
-          const remotePlayerHandle = this.nonGameState.remotePlayerHandle;
-          if (remotePlayerHandle !== null) {
-            const stats = this.telegraph.getNetworkStats(remotePlayerHandle)
-              .value!;
-            updateStatus({
-              frame: frameCount,
-              checksum: checksum,
-              ping: Math.floor(stats.ping),
-              sendQueueLength: stats.sendQueueLength,
-            });
-          }
-        }
+        didAdvance = true;
       } else {
         console.log('[Game] non-ok result for syncInput:', inputResult.code);
       }
     }
 
     this.telegraph.afterTick();
+
+    if (didAdvance) {
+      frameCount += 1;
+      if (frameCount % 60 === 0) {
+        this.updateStats();
+      }
+    }
+  }
+
+  readInput(): AddLocalInputResult | null {
+    if (this.nonGameState.localPlayerHandle === null) {
+      return null;
+    }
+
+    const localInputs = this.inputter.getInputState();
+    return this.telegraph.addLocalInput(
+      this.nonGameState.localPlayerHandle,
+      localInputs
+    );
+  }
+
+  updateStats(): void {
+    const checksum = hash(JSON.stringify(this.gameState));
+    console.log('frame', frameCount, checksum);
+
+    const remotePlayerHandle = this.nonGameState.remotePlayerHandle;
+    if (remotePlayerHandle !== null) {
+      const stats = this.telegraph.getNetworkStats(remotePlayerHandle).value!;
+      updateStatus({
+        frame: frameCount,
+        checksum: checksum,
+        ping: Math.floor(stats.ping),
+        sendQueueLength: stats.sendQueueLength,
+      });
+    }
   }
 
   // game loop. see:
   // - https://gist.github.com/godwhoa/e6225ae99853aac1f633
   // - http://gameprogrammingpatterns.com/game-loop.html
   run(): void {
+    if (this.stopped) {
+      // stop run loop
+      return;
+    }
+
     let lastTime = performance.now();
     let lag = 0;
 
@@ -396,6 +410,10 @@ export class Game {
 
     loop();
   }
+
+  stop(): void {
+    this.stopped = true;
+  }
 }
 
 export function createGame(
@@ -405,4 +423,16 @@ export function createGame(
 ): void {
   const game = new Game(peer, remotePeerId, localPlayerNumber);
   game.run();
+
+  window.onerror = (err): void => {
+    console.error('Stopping game!');
+    game.stop();
+    peer.destroy();
+
+    if (err instanceof Event) {
+      renderCrashError((err as ErrorEvent).error || '(unknown)');
+    } else {
+      renderCrashError(err);
+    }
+  };
 }

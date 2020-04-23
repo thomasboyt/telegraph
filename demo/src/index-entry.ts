@@ -13,12 +13,21 @@ const peer = new Peer({
 });
 
 let playerNum = 1;
+let hasConnection = false;
 
 function registerConnection(conn: DataConnection): void {
+  console.log('registering connection');
   conn.on('open', () => {
+    // TODO: Add some kind of handshake system here I think?
+    if (hasConnection) {
+      console.log('closing new connection because game is already running');
+      conn.close();
+      return;
+    }
     console.log(`opened connection with peer ${conn.peer}`);
     hideConnectInfo();
     createGame(peer, conn.peer, playerNum);
+    hasConnection = true;
   });
   conn.on('close', () => {
     console.log(`closed connection with peer ${conn.peer}`);

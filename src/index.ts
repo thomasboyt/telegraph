@@ -1,3 +1,4 @@
 export { Telegraph } from './Telegraph';
-export { SyncInputResult, InputValues, SaveResult, PlayerType } from './types';
+export { InputValues, SaveResult, PlayerType } from './types';
+export * from './resultTypes';
 export * from './events';

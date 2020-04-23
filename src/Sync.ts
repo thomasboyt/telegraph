@@ -7,10 +7,10 @@ import { InputQueue, GameInput } from './InputQueue';
 import {
   TelegraphCallbacks,
   TelegraphConfig,
-  SyncInputResult,
   ConnectionStatus,
   InputValues,
 } from './types';
+import { SyncInputResultValue } from './resultTypes';
 import { assert } from './util/assert';
 import { log } from './log';
 
@@ -127,7 +127,7 @@ export class Sync<T> {
   /**
    * Returns inputs for all players for the current frame.
    */
-  getSynchronizedInputs(): SyncInputResult {
+  getSynchronizedInputs(): SyncInputResultValue {
     const isDisconnected = (i: number): boolean =>
       this.localConnectionStatus[i].disconnected &&
       this.frameCount > this.localConnectionStatus[i].lastFrame;

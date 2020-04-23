@@ -1,40 +1,25 @@
-// import { RESULT_OK } from '../types';
+import { Player, PlayerHandle, TelegraphNetworkStats } from '../types';
 import {
   ValueResult,
   VoidResult,
   ResultOk,
-  ResultPlayerOutOfRange,
-  ResultInRollback,
-  ResultNotSynchronized,
   ResultInvalidPlayerHandle,
-  ResultPredictionThreshold,
   ResultPlayerAlreadyDisconnected,
-  Player,
-  PlayerHandle,
-  TelegraphNetworkStats,
+  AddLocalInputResult,
+  AddPlayerResult,
   SyncInputResult,
-} from '../types';
+} from '../resultTypes';
 
 export abstract class Backend {
-  abstract addPlayer(
-    player: Player
-  ): ValueResult<PlayerHandle, ResultOk | ResultPlayerOutOfRange>;
+  abstract addPlayer(player: Player): AddPlayerResult;
 
   abstract addLocalInput(
     handle: PlayerHandle,
     input: number[]
-  ): VoidResult<
-    | ResultOk
-    | ResultInRollback
-    | ResultNotSynchronized
-    | ResultInvalidPlayerHandle
-    | ResultPredictionThreshold
-  >;
+  ): AddLocalInputResult;
 
-  abstract syncInput(): ValueResult<
-    SyncInputResult,
-    ResultOk | ResultNotSynchronized
-  >;
+  abstract syncInput(): SyncInputResult;
+
   abstract incrementFrame(): VoidResult<ResultOk>;
   abstract disconnectPlayer(
     handle: PlayerHandle
