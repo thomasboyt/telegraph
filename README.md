@@ -10,11 +10,11 @@ In addition to rollback, Telegraph supports adding frame delay. Unlike tradition
 
 Check out this [excellent article by Infil](http://ki.infil.net/w02-netcode.html) for all the details of rollback networking as implemented by GGPO and Telegraph.
 
-### Try It Out
+## Try It Out
 
 [Play Telegraph Tennis for Two (a simple pong demo) here](https://disco.zone/telegraph/)
 
-### Making a Telegraph Game
+## Making a Telegraph Game
 
 Telegraph, like, GGPO, requires several things of your game:
 
@@ -39,7 +39,7 @@ Real docs coming soon. For now:
 
 Check out the Pong demo in the `demo/` directory for examples of this.
 
-### Notable Differences from GGPO
+## Notable Differences from GGPO
 
 * Unlike GGPO, which creates UDP sockets for you, you have to bring your own [PeerJS](https://peerjs.com/) client that already has all players connected. GGPO's model, which Telegraph follows, is to have all connection details ready before the game starts. In GGPO, this means gathering everyone's UDP address; in Telegraph, it means having an open PeerJS (WebRTC) connection. As a bonus, this makes it easy to add additional P2P messaging through the same PeerJS connection if needed.
 
@@ -47,7 +47,7 @@ Check out the Pong demo in the `demo/` directory for examples of this.
 
 * Inputs are handled in a far more naive way, where we just send over all of the inputs for every frame instead of doing any kind of optimization for packet size/encoding speed. This could totally change in the future, but gives us flexibility for now
 
-### Roadmap
+## Roadmap
 
 In order of vague priority:
 
