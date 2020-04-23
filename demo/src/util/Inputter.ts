@@ -1,4 +1,4 @@
-import { InputValues } from '../../telegraph';
+import { InputValues } from '../../../src';
 import { keyCodes } from './keyCodes';
 
 const interruptKeyCodes = new Set([

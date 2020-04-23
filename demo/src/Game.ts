@@ -21,7 +21,7 @@ const FRAME_STEP = 1000 / 60;
 const PADDLE_WIDTH = 10;
 const PADDLE_HEIGHT = 40;
 const BALL_RADIUS = 8;
-const BALL_SPEED = 0.1;
+const BALL_SPEED = 0.15;
 
 const GAME_WIDTH = 320;
 const GAME_HEIGHT = 240;
