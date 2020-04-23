@@ -255,12 +255,15 @@ export class P2PBackend {
   private poll2Players(): number {
     let totalMinConfirmed = Number.MAX_SAFE_INTEGER;
 
-    this.forEachEndpoint((endpoint, queueIdx) => {
+    for (let queueIdx = 0; queueIdx < this.numPlayers; queueIdx += 1) {
+      const endpoint = this.getEndpoint(queueIdx);
+
       let queueConnected = true;
-      if (endpoint.isRunning()) {
+      if (endpoint && endpoint.isRunning()) {
         const status = endpoint.getPeerConnectStatus(queueIdx);
         queueConnected = !status.disconnected;
       }
+
       if (!this.localConnectionStatus[queueIdx].disconnected) {
         totalMinConfirmed = Math.min(
           this.localConnectionStatus[queueIdx].lastFrame,
@@ -271,7 +274,7 @@ export class P2PBackend {
       if (!queueConnected && !this.localConnectionStatus[queueIdx]) {
         this.disconnectPlayerQueue(queueIdx, totalMinConfirmed);
       }
-    });
+    }
 
     return totalMinConfirmed;
   }

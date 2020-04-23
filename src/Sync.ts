@@ -56,7 +56,9 @@ export class Sync<T> {
     this.localConnectionStatus = localConnectionStatus;
     this.savedStates = {
       head: 0,
-      frames: new Array(this.maxPredictionFrames),
+      // why we add + 2 to this, I am unclear, but it's required or things
+      // break!
+      frames: new Array(this.maxPredictionFrames + 2),
     };
     this.createQueues(config);
   }

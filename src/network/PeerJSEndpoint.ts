@@ -138,6 +138,10 @@ export class PeerJSEndpoint {
   }
 
   sendInput(input: GameInput): void {
+    if (!this.socket) {
+      return;
+    }
+
     if (this.currentState === State.running) {
       // TODO: implement timesync
       // this.timesync.advanceFrame(
@@ -218,6 +222,10 @@ export class PeerJSEndpoint {
    * uh, polling.
    */
   onTick(): void {
+    if (!this.socket) {
+      return;
+    }
+
     const now = performance.now();
 
     if (this.currentState === State.synchronizing) {
