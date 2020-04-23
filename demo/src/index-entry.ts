@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { createGame } from './Game';
 import Peer, { DataConnection } from 'peerjs';
-import { writeStatus } from './writeStatus';
+import {
+  updatePeerId,
+  hideConnectInfo,
+  onConnectButtonClick,
+} from './renderPage';
 
 const peer = new Peer({
   host: process.env.PEERJS_HOST,
@@ -13,6 +17,7 @@ let playerNum = 1;
 function registerConnection(conn: DataConnection): void {
   conn.on('open', () => {
     console.log(`opened connection with peer ${conn.peer}`);
+    hideConnectInfo();
     createGame(peer, conn.peer, playerNum);
   });
   conn.on('close', () => {
@@ -21,7 +26,7 @@ function registerConnection(conn: DataConnection): void {
 }
 
 peer.on('open', (id) => {
-  writeStatus(`Awaiting connection. Your Peer ID is:\n${id}`);
+  updatePeerId(id);
 });
 
 peer.on('error', (error) => {
@@ -40,4 +45,4 @@ function connectToPeer(): void {
   registerConnection(conn);
 }
 
-document.getElementById('connect-button')!.onclick = connectToPeer;
+onConnectButtonClick(connectToPeer);

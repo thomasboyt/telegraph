@@ -13,7 +13,8 @@ import { aabbTest } from './util/aabbTest';
 import { Inputter } from './util/Inputter';
 import { keyCodes } from './util/keyCodes';
 import { hash } from './util/hash';
-import { writeStatus } from './writeStatus';
+import { interpolatePosition } from './util/interpolatePosition';
+import { updateStatus } from './renderPage';
 
 const FRAME_STEP = 1000 / 60;
 
@@ -173,6 +174,7 @@ class GameState {
  */
 class NonGameState {
   localPlayerHandle: number | null = null;
+  remotePlayerHandle: number | null = null;
 }
 
 class Renderer {
@@ -199,15 +201,14 @@ class Renderer {
     }
   }
 
-  // TODO: use velocity + interpolation here
-  render(state: State, interpolation: number): void {
+  render(state: State, lerp: number): void {
     const { ctx } = this;
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
     ctx.fillStyle = 'white';
 
     function drawPaddle(paddle: Paddle): void {
-      const { x: cx, y: cy } = paddle.position;
+      const { x: cx, y: cy } = interpolatePosition(paddle, lerp);
       ctx.fillRect(
         cx - PADDLE_WIDTH / 2,
         cy - PADDLE_HEIGHT / 2,
@@ -217,7 +218,7 @@ class Renderer {
     }
 
     function drawBall(ball: Ball): void {
-      const { x: cx, y: cy } = ball.position;
+      const { x: cx, y: cy } = interpolatePosition(ball, lerp);
       ctx.beginPath();
       ctx.arc(cx, cy, BALL_RADIUS, 0, Math.PI * 2);
       ctx.fill();
@@ -269,6 +270,15 @@ export class Game {
         },
         onEvent: (evt: TelegraphEvent): void => {
           console.log('[Telegraph]', evt.type);
+          if (evt.type === 'running' || evt.type === 'connectionResumed') {
+            updateStatus({ state: 'running' });
+          } else if (evt.type === 'connected') {
+            this.nonGameState.remotePlayerHandle = evt.connected.playerHandle;
+          } else if (evt.type === 'connectionInterrupted') {
+            updateStatus({ state: 'interrupted' });
+          } else if (evt.type === 'disconnected') {
+            updateStatus({ state: 'disconnected' });
+          }
         },
       },
     });
@@ -331,7 +341,17 @@ export class Game {
         if (frameCount % 60 === 0) {
           const checksum = hash(JSON.stringify(this.gameState));
           console.log('frame', frameCount, checksum);
-          writeStatus(`Frame: ${frameCount}\nChecksum: ${checksum}`);
+          const remotePlayerHandle = this.nonGameState.remotePlayerHandle;
+          if (remotePlayerHandle !== null) {
+            const stats = this.telegraph.getNetworkStats(remotePlayerHandle)
+              .value!;
+            updateStatus({
+              frame: frameCount,
+              checksum: checksum,
+              ping: Math.floor(stats.ping),
+              sendQueueLength: stats.sendQueueLength,
+            });
+          }
         }
       } else {
         console.log('[Game] non-ok result for syncInput:', inputResult.code);

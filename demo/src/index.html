@@ -8,21 +8,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       html,
-      body {
+      body,
+      pre {
         font-family: monospace;
         font-size: 16px;
       }
-      #container {
+      .container {
         max-width: 500px;
         margin: 0 auto;
       }
     </style>
   </head>
   <body>
-    <div id="container">
-      <p id="status">Connecting...</p>
-      <button id="connect-button">connect to peer</button>
-      <canvas width="500" height="500"></canvas>
+    <div class="container">
+      <h2>Telegraph Tennis For Two</h2>
+      <div class="connect-info">
+        <p>
+          awaiting connections. your peer id is<br />
+          <span class="peer-id"></span>
+        </p>
+        <button class="connect-button">connect to peer</button>
+      </div>
+
+      <canvas width="0" height="0"></canvas>
+
+      <pre class="status"></pre>
     </div>
   </body>
 </html>
