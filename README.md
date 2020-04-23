@@ -12,7 +12,7 @@ Check out this [excellent article by Infil](http://ki.infil.net/w02-netcode.html
 
 ### Try It Out
 
-[Play Telegraph Tennis for Two (a simple pong demo) here](disco.zone/telegraph/)
+[Play Telegraph Tennis for Two (a simple pong demo) here](https://disco.zone/telegraph/)
 
 ### Making a Telegraph Game
 
