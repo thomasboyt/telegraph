@@ -13,6 +13,7 @@ import { aabbTest } from './util/aabbTest';
 import { Inputter } from './util/Inputter';
 import { keyCodes } from './util/keyCodes';
 import { hash } from './util/hash';
+import { writeStatus } from './writeStatus';
 
 const FRAME_STEP = 1000 / 60;
 
@@ -330,6 +331,7 @@ export class Game {
         if (frameCount % 60 === 0) {
           const checksum = hash(JSON.stringify(this.gameState));
           console.log('frame', frameCount, checksum);
+          writeStatus(`Frame: ${frameCount}\nChecksum: ${checksum}`);
         }
       } else {
         console.log('[Game] non-ok result for syncInput:', inputResult.code);

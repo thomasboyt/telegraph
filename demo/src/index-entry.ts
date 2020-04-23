@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { createGame } from './Game';
 import Peer, { DataConnection } from 'peerjs';
-
-const status = document.getElementById('status');
-if (!status) {
-  throw new Error('missing status <p>');
-}
+import { writeStatus } from './writeStatus';
 
 const peer = new Peer({
   host: process.env.PEERJS_HOST,
@@ -25,7 +21,7 @@ function registerConnection(conn: DataConnection): void {
 }
 
 peer.on('open', (id) => {
-  status.innerText = `Awaiting connection. Your Peer ID is:\n${id}`;
+  writeStatus(`Awaiting connection. Your Peer ID is:\n${id}`);
 });
 
 peer.on('error', (error) => {
