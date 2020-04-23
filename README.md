@@ -1,12 +1,12 @@
 # "telegraph" [(working title)](https://www.youtube.com/watch?v=rXXM60niKbg)
 
-This is a port of [GGPO](https://github.com/pond3r/ggpo/), a library for predictive rollback netcode, to TypeScript. It's more or less a 1:1 copy of the original, for better or worse, but seems to work ok so far!
+Telegraph is a port of [GGPO](https://github.com/pond3r/ggpo/), a library for P2P rollback netcode, to TypeScript.
 
-_Rollback netcode_ is a form of P2P [netcode](https://en.wikipedia.org/wiki/Netcode) that keeps players in sync without having to wait for all inputs to be received to execute a frame. 
+_Rollback netcode_ is a form of [netcode](https://en.wikipedia.org/wiki/Netcode) that keeps players in sync without having to wait for all inputs to be received to execute a frame.  Telegraph is _lockstep_, meaning that the same game simulation is run for each player, using the input of local and remote players for each frame. Because of this, Telegraph only has to send _inputs_ over the wire, rather than the actual game state.
 
-By keeping multiple "lockstep" simulations of the game running on each P2P client, Telegraph only has to send _inputs_ over the wire, rather than game state. Inputs are then "predicted" in a simple, but effective way: any time the local simulation executes a frame but has not yet received inputs for it, it just assumes the next input for a remote player will be the same as their previous one. For games that use traditional "digital" controls (such as keyboards, or controllers as long as you convert e.g. analog stick movement into cardinal directions), this is pretty effective.
+Telegraph has simple, but effective, _predictive_ netcode: any time the local simulation executes a frame but has not yet received inputs for it, it just assumes the next input for a remote player will be the same as their previous one. This is very effective for most games, especially ones with digital controls (such as keyboard-based games, controllers that use a "d-pad" for input, or analog sticks that are quantized into a relatively small number of potential directions and magnitudes).
 
-In addition to rollback, Telegraph supports adding frame delay. Unlike traditional frame delay methods, it doesn't pause when you don't receive a frame, so the frame delay can be set relatively low.
+In addition to rollback, Telegraph supports adding frame delay, a small "buffer" of frames before your local inputs are played, so that remote inputs have a higher chance of having been received before executing that frame. Unlike traditional frame delay methods, it doesn't pause when you havent't receive input for a frame, so the frame delay can be set relatively low, with prediction (and rollback) being invoked for late frames.
 
 Check out this [excellent article by Infil](http://ki.infil.net/w02-netcode.html) for all the details of rollback networking as implemented by GGPO and Telegraph.
 
