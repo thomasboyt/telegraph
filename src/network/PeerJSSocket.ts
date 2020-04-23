@@ -40,6 +40,8 @@ export class PeerJSSocket {
   registerConnection = (conn: DataConnection): void => {
     this.connections[conn.peer] = conn;
 
+    conn.serialization = 'json';
+
     conn.on('close', () => {
       console.log(`closed connection with peer ${conn.peer}`);
       delete this.connections[conn.peer];
