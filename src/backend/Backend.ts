@@ -52,4 +52,6 @@ export abstract class Backend {
     handle: PlayerHandle,
     delay: number
   ): VoidResult<ResultOk | ResultInvalidPlayerHandle>;
+
+  abstract postProcessUpdate(): void;
 }

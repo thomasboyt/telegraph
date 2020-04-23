@@ -44,7 +44,6 @@ export class PeerJSSocket {
 
     conn.on('close', () => {
       console.log(`closed connection with peer ${conn.peer}`);
-      delete this.connections[conn.peer];
     });
 
     conn.on('data', (data) => {

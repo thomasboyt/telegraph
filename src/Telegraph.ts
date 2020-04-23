@@ -27,8 +27,22 @@ export class Telegraph<T> {
     return this.session.disconnectPlayer(handle);
   }
 
+  /**
+   * Call in:
+   * - Your primary run loop, after updating your game state, only if
+   *   `addLocalInput()` and `syncInput()` return `ok` result codes.
+   * - Your onAdvanceFrame() callback, after updating game state.
+   */
   advanceFrame() {
     return this.session.incrementFrame();
+  }
+
+  /**
+   * Call when your primary run loop has moved forward one tick, regardless of
+   * whether the game state was actually updated on this frame or not.
+   */
+  afterTick() {
+    return this.session.postProcessUpdate();
   }
 
   getNetworkStats(handle: PlayerHandle) {

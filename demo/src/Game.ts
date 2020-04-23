@@ -335,6 +335,8 @@ export class Game {
         console.log('[Game] non-ok result for syncInput:', inputResult.code);
       }
     }
+
+    this.telegraph.afterTick();
   }
 
   // game loop. see:

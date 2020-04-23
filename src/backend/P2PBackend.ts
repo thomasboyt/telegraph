@@ -178,21 +178,18 @@ export class P2PBackend {
 
   /**
    * this method is called after incrementFrame() happens, as well as after
-   * incoming WebRTC messages.
+   * incoming WebRTC messages, and also after the runloop ticks.
    *
-   * in ggpo, _polling_ is used in a few places to handle incoming queued
-   * messages. because we live in the magic async world of javascript, we'll
-   * instead be handling incoming events for these messages. in practice, this
-   * is _mostly_ the same: most ggpo polling happens during the `idle` phase
-   * _between runloop ticks_, which is great, since that's when our javascript
-   * async tasks will get spawned.
+   * this is called doPoll() in GGPO, and does UDP polling in addition to
+   * processing events and messages. because that's handled async in the
+   * browser, this method is responsible for actually processing the incoming
+   * messages we enqueue asynchronously, as well as a bunch of other logic.
    *
-   * however, in ggpo, there's _also_ some polling that happens after every
-   * `incrementFrame()` call. i'm not really sure why, but i'm concerned about
-   * it, so i'm adding this to ensure that the same logic is run - not the
-   * actual message polling, but everything else that happens in that case.
+   * ggpo indicates you're supposed to call this as many times as you can during
+   * your runloop's idle phase, but in practice i think we can get away with
+   * just calling it once since we can't tight-loop in JS or it'll kill the tab.
    */
-  private postProcessUpdate(): void {
+  postProcessUpdate(): void {
     log('*** processing updates');
     if (this.sync.getInRollback()) {
       return;
