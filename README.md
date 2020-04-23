@@ -10,13 +10,14 @@ This is a port of [GGPO](https://github.com/pond3r/ggpo/) to TypeScript. It's mo
 
 * Inputs are handled in a far more naive way, where we just send over all of the inputs for every frame instead of doing any kind of optimization for packet size/encoding speed. This could totally change in the future, but gives us flexibility for now
 
-### Todo
+### Roadmap
 
-- [ ] Replace some UDP disconnect logic with PeerJS events
+In order of vague priority:
+
 - [ ] Allow any form of inputs instead of just keyCodes (arbitrary serializable object)
-- [ ] Implement TimeSync/frame-advantage system
+- [ ] Replace some UDP disconnect logic with PeerJS events
+- [ ] Implement TimeSync/frame-advantage fairness system
 - [ ] Implement network stats
-- [ ] (near future) Implement debug backend (synctest)
-- [ ] (far future) Implement spectators
-- [x] Implement remaining events
-- [x] Figure out setFrameDelay usage in practice
+- [ ] Implement 3+ player support
+- [ ] Implement debug backend (synctest)
+- [ ] Implement spectators
