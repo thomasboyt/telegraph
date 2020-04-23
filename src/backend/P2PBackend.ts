@@ -10,7 +10,7 @@ import {
   ResultPlayerAlreadyDisconnected,
   Player,
   PlayerHandle,
-  NetworkStats,
+  TelegraphNetworkStats,
   SyncInputResult,
   TelegraphConfig,
   ConnectionStatus,
@@ -32,10 +32,8 @@ import {
   TelegraphEventSynchronized,
   TelegraphEventConnectionInterrupted,
   TelegraphEventConnectionResumed,
+  TelegraphEventRunning,
 } from '../events';
-
-// TODO: WHAT IS THIS
-// const RECOMMENDATION_INTERVAL = 240;
 
 export class P2PBackend {
   /** Shared state between this and the sync and connection classes! */
@@ -453,19 +451,17 @@ export class P2PBackend {
 
   getNetworkStats(
     handle: PlayerHandle
-  ): ValueResult<NetworkStats, ResultOk | ResultInvalidPlayerHandle> {
-    // TODO
-    throw new Error('not implemented yet');
-    // const result = this.playerHandleToQueueIdx(handle);
-    // if (result.code !== 'ok') {
-    //   return { code: result.code, value: null };
-    // }
-    // const stats =
-    //   this.getEndpoint(result.value!)?.getNetworkStats() ??
-    //   {
-    //     // TODO: placeholder network stats here
-    //   };
-    // return { code: 'ok', value: stats };
+  ): ValueResult<TelegraphNetworkStats, ResultOk | ResultInvalidPlayerHandle> {
+    const result = this.playerHandleToQueueIdx(handle);
+    if (result.code !== 'ok') {
+      return { code: result.code, value: null };
+    }
+    const stats = this.getEndpoint(result.value!)?.getNetworkStats() ?? {
+      // placeholder in case you get local player for some reason
+      ping: -1,
+      sendQueueLength: -1,
+    };
+    return { code: 'ok', value: stats };
   }
 
   private onMessage(fromId: string, message: TelegraphMessage): void {
@@ -508,10 +504,10 @@ export class P2PBackend {
         return;
       }
 
-      // const event: TelegraphEventRunning = {
-      //   type: 'running'
-      // }
-      // this.callbacks.onEvent(event);
+      const event: TelegraphEventRunning = {
+        type: 'running',
+      };
+      this.callbacks.onEvent(event);
       this.synchronizing = false;
       log('[Backend] Synchronized all peers');
     });

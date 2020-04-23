@@ -1,5 +1,5 @@
 import { PeerJSSocket } from './PeerJSSocket';
-import { ConnectionStatus, InputValues } from '../types';
+import { ConnectionStatus, InputValues, TelegraphNetworkStats } from '../types';
 import { GameInput } from '../InputQueue';
 import {
   TelegraphMessage,
@@ -586,5 +586,12 @@ export class PeerJSEndpoint {
       this.lastAckedInput = this.pendingOutput.front();
       this.pendingOutput.pop();
     }
+  }
+
+  getNetworkStats(): TelegraphNetworkStats {
+    return {
+      ping: this.roundTripTime,
+      sendQueueLength: this.pendingOutput.getSize(),
+    };
   }
 }

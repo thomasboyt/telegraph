@@ -37,6 +37,10 @@ export interface TelegraphEventSynchronized {
   };
 }
 
+export interface TelegraphEventRunning {
+  type: 'running';
+}
+
 export interface TelegraphEventConnectionInterrupted {
   type: 'connectionInterrupted';
   connectionInterrupted: {
@@ -57,5 +61,6 @@ export type TelegraphEvent =
   | TelegraphEventDisconnected
   | TelegraphEventSynchronizing
   | TelegraphEventSynchronized
+  | TelegraphEventRunning
   | TelegraphEventConnectionInterrupted
   | TelegraphEventConnectionResumed;

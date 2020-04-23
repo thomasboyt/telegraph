@@ -11,7 +11,7 @@ import {
   ResultPlayerAlreadyDisconnected,
   Player,
   PlayerHandle,
-  NetworkStats,
+  TelegraphNetworkStats,
   SyncInputResult,
 } from '../types';
 
@@ -43,7 +43,7 @@ export abstract class Backend {
   >;
   abstract getNetworkStats(
     handle: PlayerHandle
-  ): ValueResult<NetworkStats, ResultOk | ResultInvalidPlayerHandle>;
+  ): ValueResult<TelegraphNetworkStats, ResultOk | ResultInvalidPlayerHandle>;
 
   // this isn't actually implemented in GGPO's backends but exists in the API
   // chat(text: string): ResultOk;

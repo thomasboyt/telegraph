@@ -77,8 +77,9 @@ export interface RemoteDetails {
   peerId: string;
 }
 
-export interface NetworkStats {
+export interface TelegraphNetworkStats {
   ping: number;
-  localFramesBehind: number;
-  remoteFramesBehind: number;
+  sendQueueLength: number;
+  // localFramesBehind: number;
+  // remoteFramesBehind: number;
 }
