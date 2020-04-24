@@ -12,6 +12,7 @@
   "engines": {
     "node": ">=12.0.0"
   },
+  "main": "dist/index.js",
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
