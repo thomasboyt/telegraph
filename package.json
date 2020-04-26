@@ -2,7 +2,13 @@
   "name": "@tboyt/telegraph",
   "version": "0.0.1",
   "description": "GGPO-style netcode for WebRTC-powered video games.",
-  "keywords": ["ggpo", "games", "multiplayer", "Webrtc", "netcode"],
+  "keywords": [
+    "ggpo",
+    "games",
+    "multiplayer",
+    "Webrtc",
+    "netcode"
+  ],
   "author": "Thomas Boyt <me@thomasboyt.com>",
   "repository": {
     "type": "git",

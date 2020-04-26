@@ -56,6 +56,7 @@ In order of vague priority:
 - [ ] Consider extensions to PeerJS protocol for "out of game" events (e.g. initial handshake)
 - [ ] Consider desync prevention protocol (maybe add to connection state in input message, `frame`/`checksum`?)
 - [ ] Consider hooks to properly "crash out" on any unhandled error (force PeerJS disconnect/stop runloop/etc)
+- [ ] Implement `free_buffer` callback for folks using object pools instead of relying purely on GC
 - [ ] Implement TimeSync/frame-advantage fairness system
 - [ ] Implement 3+ player support
 - [ ] Implement debug backend (synctest)
