@@ -22,7 +22,7 @@ import { log } from '../log';
 
 const NUM_SYNC_PACKETS = 5;
 const SYNC_RETRY_INTERVAL = 2000;
-const SYNC_FIRST_RETRY_INTERVAL = 500;
+const SYNC_FIRST_RETRY_INTERVAL = 200;
 const RUNNING_RETRY_INTERVAL = 200;
 const KEEP_ALIVE_INTERVAL = 200;
 const QUALITY_REPORT_INTERVAL = 1000;
@@ -370,6 +370,16 @@ export class PeerJSEndpoint {
 
     const seq = msg.sequenceNumber;
     this.nextRecvSeq = seq;
+
+    if (
+      this.currentState === State.synchronizing &&
+      msg.type !== 'syncRequest' &&
+      msg.type !== 'syncReply'
+    ) {
+      // ignore messages until we've synced
+      return;
+    }
+
     const handler = handlers[msg.type];
     assert(
       !!handler,
