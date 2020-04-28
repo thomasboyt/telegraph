@@ -1,6 +1,6 @@
 {
   "name": "@tboyt/telegraph",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "GGPO-style netcode for WebRTC-powered video games.",
   "keywords": [
     "ggpo",
