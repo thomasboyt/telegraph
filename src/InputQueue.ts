@@ -204,11 +204,7 @@ class InputQueue {
 
         const arrOffset = (offset + this.tail) % INPUT_QUEUE_LENGTH;
 
-        assert(
-          this.inputs[arrOffset].frame === requestedFrame,
-          'RequestedFrame did not match retrieved confirmed input'
-        );
-
+        assert(this.inputs[arrOffset].frame === requestedFrame, 'RequestedFrame mismatched retrieved confirmed input');
         return this.inputs[arrOffset];
 
       }
@@ -218,14 +214,9 @@ class InputQueue {
       if (! hasSomethingToPredict) {
         this.prediction = { frame: 0, inputs: [] };
       } else {
-
         // THE HEART OF GGPO: JUST USE THE LAST DANG FRAME
         const previousInput = this.inputs[previousFrame(this.head)];
-        this.prediction = {
-          frame  : previousInput.frame + 1,
-          inputs : previousInput.inputs,
-        };
-
+        this.prediction     = { frame: previousInput.frame + 1, inputs: previousInput.inputs };
       }
 
     }
@@ -254,7 +245,7 @@ class InputQueue {
       this.lastUserAddedFrame === -1 ||
       input.frame === this.lastUserAddedFrame + 1,
 
-      `Received input out of order (frame #${input.frame}, last frame was ${this.lastUserAddedFrame})`
+      `Received input out of order (frame #${input.frame}, last was ${this.lastUserAddedFrame})`
     );
 
     this.lastUserAddedFrame = input.frame;
@@ -292,7 +283,7 @@ class InputQueue {
     // queue.  Toss it.
 
     if (expectedFrame > frame) {
-      log(`Dropping inframe ${frame} (expected next to be ${expectedFrame})`);
+      log(`Dropping inframe ${frame} (expected ${expectedFrame} next)`);
       return -1;
     }
 
@@ -315,11 +306,12 @@ class InputQueue {
 
 
 
-    assert(
-      frame === 0 ||
-      frame === this.inputs[previousFrame(this.head)].frame + 1,
-      'Frame must be 1 greater than previous frame'
-    );
+    const FrameMustSucceedPrevious = frame === 0
+                                  || frame === this.inputs[previousFrame(this.head)].frame + 1;
+
+    assert(FrameMustSucceedPrevious, 'Frame must be 1 greater than previous frame, or 0');
+
+
 
     return frame;
 
@@ -334,10 +326,8 @@ class InputQueue {
    */
   private addDelayedInputToQueue(input: GameInput, frame: number): void {
 
-    assert(
-      this.lastAddedFrame === -1 || frame === this.lastAddedFrame + 1,
-      'Frame must be one greater than lastAddedFrame frame'
-    );
+    const FrameMustSucceedPrevious = this.lastAddedFrame === -1 || frame === this.lastAddedFrame + 1;
+    assert(FrameMustSucceedPrevious, 'Frame must be one greater than lastAddedFrame frame');
 
     // add frame to the queue
     log(`Adding frame ${frame} (head: ${this.head}, tail: ${this.tail}, length: ${this.length})`);
@@ -350,19 +340,14 @@ class InputQueue {
 
     if (this.prediction) {
 
-      assert(
-        frame === this.prediction.frame,
-        'Tried to overwrite prediction with new input, but prediction was a different frame'
-      );
+      assert(frame === this.prediction.frame, 'Tried to update prediction, but prediction was a different frame');
 
-      const FoundAnError = (this.firstIncorrectFrame === -1)
-                        && (!( equalInputs(this.prediction, input) ));
+      const firstIncFrINeg1 = this.firstIncorrectFrame === -1,
+            FoundAnError    = firstIncFrINeg1 && (!( equalInputs(this.prediction, input) ));
 
       if (FoundAnError) { this.firstIncorrectFrame = frame; }
 
-
-      const PredictionWasRight = (this.prediction.frame === this.lastFrameRequested)
-                              && (this.firstIncorrectFrame === -1);
+      const PredictionWasRight = (this.prediction.frame === this.lastFrameRequested) && firstIncFrINeg1;
 
       if (PredictionWasRight) { this.prediction        = null; }
       else                    { this.prediction.frame += 1; } // :( we increment the count for the next added input

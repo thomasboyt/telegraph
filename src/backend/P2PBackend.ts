@@ -44,6 +44,8 @@ import {
   TelegraphEventRunning,
 } from '../events';
 
+const LocalPlayerPlaceholder = { ping: -1, sendQueueLength: -1 };
+
 
 
 
@@ -240,7 +242,7 @@ export class P2PBackend {
     const totalMinConfirmed = this.numPlayers <= 2 ? this.poll2Players() : this.pollNPlayers();
     if (totalMinConfirmed >= 0) {
 
-      assert(totalMinConfirmed != Number.MAX_SAFE_INTEGER, 'P2PBackend: could not find last confirmed frame');
+      assert(totalMinConfirmed != Number.MAX_SAFE_INTEGER, 'Could not find last confirmed frame');
 
       log(`Setting last confirmed frame to ${totalMinConfirmed}`);
       this.sync.setLastConfirmedFrame(totalMinConfirmed);
@@ -339,7 +341,7 @@ export class P2PBackend {
 
       endpoint.processEventsQueue( evt => {
 
-        log('*** processing event', evt);
+        log('Processing UDP endpoint event', evt);
 
 
         if (evt.type === 'input') { // if queue not disconnected, add a remote input and update frame
@@ -465,7 +467,7 @@ export class P2PBackend {
           endpoint   = this.getEndpoint(queueIdx);
 
     // kinda think we shouldn't need this
-    assert(endpoint !== null, `P2PBackend: Tried to disconnect nonexistent player queue ${queueIdx}`);
+    assert(endpoint !== null, `Tried to disconnect nonexistent player queue ${queueIdx}`);
 
     endpoint!.disconnect();  // TODO(StoneCypher): fix this
 
@@ -495,11 +497,9 @@ export class P2PBackend {
     const result = this.playerHandleToQueueIdx(handle);
     if (result.code !== 'ok') { return { code: result.code, value: null }; }
 
-    const stats = this.getEndpoint(result.value!)?.getNetworkStats() ?? {
-      // placeholder in case you get local player for some reason
-      ping: -1,
-      sendQueueLength: -1,
-    };
+    const stats = this.getEndpoint(result.value!)  // TODO(StoneCypher): fix this
+                     ?.getNetworkStats()
+                     ?? LocalPlayerPlaceholder;
 
     return { code: 'ok', value: stats };
 
@@ -560,7 +560,7 @@ export class P2PBackend {
       this.callbacks.onEvent({ type: 'running' });
       this.synchronizing = false;
 
-      log('[Backend] Synchronized all peers');
+      log('Synchronized all peers');
 
     });
 

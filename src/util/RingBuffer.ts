@@ -24,9 +24,10 @@ export class RingBuffer<T> {
 
 
 
-  constructor(maxSize: number) {
-    this.maxSize = maxSize;
-  }
+  constructor(maxSize: number) { this.maxSize = maxSize; }
+
+  getSize(): number  { return this.size; }
+  isEmpty(): boolean { return this.size === 0; }
 
 
 
@@ -46,7 +47,7 @@ export class RingBuffer<T> {
 
   pop(): void {
 
-    assert(this.size !== this.maxSize, `Ring buffer full`);  // TODO(StoneCypher): why would this matter for pop?
+    assert(this.size !== this.maxSize, `Ring buffer full`);  // TODO(StoneCypher): why would this matter for pop?  This is probably a bug, FIXME
 
     this.tail  = (this.tail + 1) % this.maxSize;
     this.size -= 1;
@@ -64,18 +65,6 @@ export class RingBuffer<T> {
 
     ++this.size;
 
-  }
-
-
-
-  getSize(): number {
-    return this.size;
-  }
-
-
-
-  isEmpty(): boolean {
-    return this.size === 0;
   }
 
 
