@@ -229,34 +229,22 @@ export class P2PBackend {
 
     if (this.sync.getInRollback()) { return; }
 
-    this.forEachEndpoint((endpoint) => {
-      endpoint.onTick();
-    });
-
+    this.forEachEndpoint( endpoint => endpoint.onTick() );
     this.processEndpointEventsQueue();
 
     if (this.synchronizing) { return; }
 
     this.sync.checkSimulation();
 
-    // notify all of our endpoints of their local frame number for their
-    // next connection quality report
-
+    // notify all of our endpoints of their local frame number for their next connection quality report
     const currentFrame = this.sync.getFrameCount();
 
-    this.forEachEndpoint((endpoint) => {
-      endpoint.setLocalFrameNumber(currentFrame);
-    });
+    this.forEachEndpoint( endpoint => endpoint.setLocalFrameNumber(currentFrame) );
 
-    const totalMinConfirmed =
-      this.numPlayers <= 2 ? this.poll2Players() : this.pollNPlayers();
-
+    const totalMinConfirmed = this.numPlayers <= 2 ? this.poll2Players() : this.pollNPlayers();
     if (totalMinConfirmed >= 0) {
 
-      assert(
-        totalMinConfirmed != Number.MAX_SAFE_INTEGER,
-        'P2PBackend: could not find last confirmed frame'
-      );
+      assert(totalMinConfirmed != Number.MAX_SAFE_INTEGER, 'P2PBackend: could not find last confirmed frame');
 
       log(`Setting last confirmed frame to ${totalMinConfirmed}`);
       this.sync.setLastConfirmedFrame(totalMinConfirmed);
@@ -354,7 +342,7 @@ export class P2PBackend {
 
   private processEndpointEventsQueue(): void {
 
-    this.forEachEndpoint((endpoint, queueIdx) => {
+    this.forEachEndpoint( (endpoint, queueIdx) => {
 
       const handle = this.queueIdxToPlayerHandle(queueIdx);
 
@@ -387,11 +375,11 @@ export class P2PBackend {
         } else if (evt.type === 'synchronizing') {
 
           const outgoing: TelegraphEventSynchronizing = {
-            type: 'synchronizing',
-            synchronizing: {
-              playerHandle: handle,
-              count: evt.synchronizing.count,
-              total: evt.synchronizing.total
+            type          : 'synchronizing',
+            synchronizing : {
+              playerHandle : handle,
+              count        : evt.synchronizing.count,
+              total        : evt.synchronizing.total
             }
           };
 
@@ -399,6 +387,7 @@ export class P2PBackend {
 
 
         } else if (evt.type === 'synchronized') {
+
           const outgoing: TelegraphEventSynchronized = {
             type         : 'synchronized',
             synchronized : { playerHandle: handle }
@@ -409,11 +398,12 @@ export class P2PBackend {
 
 
         } else if (evt.type === 'interrupted') {
+
           const outgoing: TelegraphEventConnectionInterrupted = {
             type                  : 'connectionInterrupted',
             connectionInterrupted : {
-              playerHandle: handle,
-              disconnectTimeout: evt.interrupted.disconnectTimeout
+              playerHandle      : handle,
+              disconnectTimeout : evt.interrupted.disconnectTimeout
             }
           };
 
