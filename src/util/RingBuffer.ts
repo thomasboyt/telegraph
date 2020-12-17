@@ -15,10 +15,11 @@ import { assert } from '../util';
 
 export class RingBuffer<T> {
 
+  private maxSize  : number;
+
   private head              = 0;
   private tail              = 0;
   private size              = 0;
-  private maxSize  : number;
   private elements : T[]    = new Array(64);
 
 
@@ -45,7 +46,7 @@ export class RingBuffer<T> {
 
   pop(): void {
 
-    assert(this.size !== this.maxSize, `Ring buffer full`);
+    assert(this.size !== this.maxSize, `Ring buffer full`);  // TODO(StoneCypher): why would this matter for pop?
 
     this.tail  = (this.tail + 1) % this.maxSize;
     this.size -= 1;
@@ -56,10 +57,7 @@ export class RingBuffer<T> {
 
   push(item: T): void {
 
-    assert(
-      this.size !== this.maxSize - 1,
-      "Cannot push item into ring buffer, it's full"
-    );
+    assert(this.size !== this.maxSize - 1, "Cannot push item into ring buffer, it's full");
 
     this.elements[this.head] = item;
     this.head                = (this.head + 1) % this.maxSize;

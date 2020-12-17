@@ -4,9 +4,6 @@
 
 import { INPUT_QUEUE_LENGTH } from './constants';
 
-// TODO(StoneCypher): let's undo this pls kthx
-import isEqual from 'lodash.isequal';
-
 import { log, assert } from './util';
 import { GameInput }   from './types';
 
@@ -20,10 +17,6 @@ const previousFrame = (offset: number): number =>
 const equalInputs = (a: GameInput, b: GameInput): boolean =>
   (a.frame === b.frame) &&
   (a.inputs.every( (ai, i) => b.inputs[i] === ai ));
-
-// was: isEqual(a, b);  // TODO: maybe something faster?
-// TODO(StoneCypher): this appears to be the only use of lodash; remove it
-// it appears to be { frame: number, inputs: number[] }
 
 
 
