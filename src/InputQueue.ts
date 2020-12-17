@@ -39,6 +39,9 @@ const equalInputs = (a: GameInput, b: GameInput): boolean => {
  * frame delay.
  */
 
+// TODO(StoneCypher): this would be faster and easier to read in functional as
+// a named tuple
+
 class InputQueue {
 
   private length = 0;
@@ -91,12 +94,10 @@ class InputQueue {
 
   discardConfirmedFrames(frame: number): void {
 
-    assert(frame >= 0, 'cannot discard negative frames');
+    assert(frame >= 0, 'Cannot discard negative frames');
 
     // MAYBE HACK: prevent removing frames during first tick
-    if (this.lastFrameRequested === -1) {
-      return;
-    }
+    if (this.lastFrameRequested === -1) { return; }
 
     // if frame is further ahead from the last frame we actually read, don't
     // discard those unread frames yet!
@@ -104,7 +105,7 @@ class InputQueue {
       frame = Math.min(frame, this.lastFrameRequested);
     }
 
-    log('[InputQueue] Discarding up to frame', frame);
+    log('Discarding up to frame', frame);
     log(
       'last added', this.lastAddedFrame,
       'head',       this.head,
@@ -119,14 +120,14 @@ class InputQueue {
       const tailFrame = this.inputs[this.tail].frame;
       const offset    = frame - tailFrame + 1;
 
-      assert(offset >= 0, 'cannot have negative offset');
+      assert(offset >= 0, 'Cannot have negative offset');
 
       this.tail    = (this.tail + offset) % INPUT_QUEUE_LENGTH;
       this.length -= offset;
 
     }
 
-    assert(this.length >= 0, 'cannot have negative length');
+    assert(this.length >= 0, 'Cannot have negative length');
 
   }
 
@@ -142,7 +143,7 @@ class InputQueue {
 
     assert(
       this.firstIncorrectFrame === -1 || frame <= this.firstIncorrectFrame,
-      'InputQueue: trying to reset prediction errors for frame earlier than first incorrect frame'
+      'Trying to reset prediction errors for frame earlier than first incorrect frame'
     );
 
     this.prediction          = null;
@@ -166,7 +167,7 @@ class InputQueue {
 
     assert(
       this.firstIncorrectFrame === -1 || requestedFrame < this.firstIncorrectFrame,
-      'InputQueue: Tried to get confirmed input of a frame after an incorrect prediction'
+      'Tried to get confirmed input of a frame after an incorrect prediction'
     );
 
     const offset = requestedFrame % INPUT_QUEUE_LENGTH;
@@ -194,7 +195,7 @@ class InputQueue {
 
     assert(
       this.firstIncorrectFrame === -1,
-      'InputQueue: cannot get input when a prediction error is present!'
+      'Cannot get input when a prediction error is present!'
     );
 
     // We store this for use in the addInput() logic below.
@@ -203,7 +204,7 @@ class InputQueue {
     const tailFrame = this.inputs[this.tail].frame;
     assert(
       requestedFrame >= tailFrame,
-      `InputQueue: cannot request frame earlier than queue tail (tried to get ${requestedFrame}, tail is at ${tailFrame})`
+      `Cannot request frame earlier than queue tail (tried to get ${requestedFrame}, tail is at ${tailFrame})`
     );
 
     if (!this.prediction) {
@@ -215,7 +216,7 @@ class InputQueue {
         const arrOffset = (offset + this.tail) % INPUT_QUEUE_LENGTH;
         assert(
           this.inputs[arrOffset].frame === requestedFrame,
-          'InputQueue: requestedFrame did not match retrieved confirmed input'
+          'RequestedFrame did not match retrieved confirmed input'
         );
         return this.inputs[arrOffset];
       }
@@ -228,8 +229,8 @@ class InputQueue {
         // THE HEART OF GGPO: JUST USE THE LAST DANG FRAME
         const previousInput = this.inputs[previousFrame(this.head)];
         this.prediction = {
-          frame: previousInput.frame + 1,
-          inputs: previousInput.inputs,
+          frame  : previousInput.frame + 1,
+          inputs : previousInput.inputs,
         };
       }
 
@@ -238,8 +239,8 @@ class InputQueue {
     // we specifically return the requested frame here, since this.prediction
     // stays at frame+1 forever
     return {
-      frame: requestedFrame,
-      inputs: this.prediction.inputs,
+      frame  : requestedFrame,
+      inputs : this.prediction.inputs,
     };
 
   }
@@ -257,20 +258,21 @@ class InputQueue {
     // ensure we're always sending inputs in sequence
     assert(
       this.lastUserAddedFrame === -1 ||
-        input.frame === this.lastUserAddedFrame + 1,
-      `InputQueue: Received input out of order (frame #${input.frame}, last frame was ${this.lastUserAddedFrame})`
+      input.frame === this.lastUserAddedFrame + 1,
+
+      `Received input out of order (frame #${input.frame}, last frame was ${this.lastUserAddedFrame})`
     );
 
     this.lastUserAddedFrame = input.frame;
 
     const newFrame = this.advanceQueueHead(input.frame);
-    log(
-      `[InputQueue] Adding input at frame ${input.frame} (actual: ${newFrame})`
-    );
+    log(`Adding input at frame ${input.frame} (actual: ${newFrame})`);
+
     this.addDelayedInputToQueue(input, newFrame);
 
     // ensure the input has a delay applied if needed
     input.frame = newFrame;
+
   }
 
 
@@ -290,28 +292,25 @@ class InputQueue {
 
     frame += this.frameDelay;
 
+
+    // This can occur when the frame delay has dropped since the last time we
+    // shoved a frame into the system.  In this case, there's no room on the
+    // queue.  Toss it.
+
     if (expectedFrame > frame) {
-
-      // "This can occur when the frame delay has dropped since the last time we
-      // shoved a frame into the system.  In this case, there's no room on the
-      // queue.  Toss it."
-
-      log(
-        `[InputQueue] Dropping input frame ${frame} (expected next to be ${expectedFrame})`
-      );
-
+      log(`Dropping inframe ${frame} (expected next to be ${expectedFrame})`);
       return -1;
-
     }
 
-    while (expectedFrame < frame) {
-      // "This can occur when the frame delay has been increased since the last
-      // time we shoved a frame into the system.  We need to replicate the last
-      // frame in the queue several times in order to fill the space left."
 
-      log(
-        `[InputQueue] Adding padding frame ${expectedFrame} because of change of frame delay`
-      );
+
+    // This can occur when the frame delay has been increased since the last
+    // time we shoved a frame into the system.  We need to replicate the last
+    // frame in the queue several times in order to fill the space left.
+
+    while (expectedFrame < frame) {
+
+      log(`Adding padframe ${expectedFrame} because of change of frame delay`);
 
       const lastFrame = this.inputs[previousFrame(this.head)];
       this.addDelayedInputToQueue(lastFrame, expectedFrame);
@@ -320,9 +319,12 @@ class InputQueue {
 
     }
 
+
+
     assert(
-      frame === 0 || frame === this.inputs[previousFrame(this.head)].frame + 1,
-      'InputQueue: frame must be one greater than previous frame'
+      frame === 0 ||
+      frame === this.inputs[previousFrame(this.head)].frame + 1,
+      'Frame must be 1 greater than previous frame'
     );
 
     return frame;
@@ -340,12 +342,12 @@ class InputQueue {
 
     assert(
       this.lastAddedFrame === -1 || frame === this.lastAddedFrame + 1,
-      'InputQueue: frame must be one greater than lastAddedFrame frame'
+      'Frame must be one greater than lastAddedFrame frame'
     );
 
     // add frame to the queue
     log(
-      `[InputQueue] adding frame ${frame} (head: ${this.head}, tail: ${this.tail}, length: ${this.length})`
+      `Adding frame ${frame} (head: ${this.head}, tail: ${this.tail}, length: ${this.length})`
     );
 
     this.inputs[this.head] = { ...input, frame };
@@ -358,7 +360,7 @@ class InputQueue {
 
       assert(
         frame === this.prediction.frame,
-        'InputQueue: Tried to overwrite prediction with new input, but prediction was a different frame'
+        'Tried to overwrite prediction with new input, but prediction was a different frame'
       );
 
       if (
@@ -382,15 +384,19 @@ class InputQueue {
       }
     }
 
-    assert(
-      this.length <= INPUT_QUEUE_LENGTH,
-      'InputQueue overflowed max queue length!'
-    );
+    assert(this.length <= INPUT_QUEUE_LENGTH, 'InputQueue overflow maxlength');
+
   }
+
+
+
+
 
   setFrameDelay(delay: number): void {
     this.frameDelay = delay;
   }
+
+
 
 }
 
