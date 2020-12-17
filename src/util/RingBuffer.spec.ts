@@ -1,5 +1,6 @@
 
 import { RingBuffer } from './RingBuffer';
+import * as fc        from 'fast-check';
 
 
 
@@ -8,6 +9,25 @@ import { RingBuffer } from './RingBuffer';
 describe('Ring buffer', () => {
 
   describe('created with 3 number space', () => {
+
+    test('can create and one-step ring buffer of any pos-int size (tests up to 50k)', () => {
+
+      fc.assert( fc.property(
+        fc.integer(1, 50_000),
+        sz => {
+          const buf = new RingBuffer(sz);
+          expect( buf.getSize() ).toBe(0);
+          expect( buf.getMaxSize() ).toBe(sz);
+          buf.push(1);
+          expect( buf.getSize() ).toBe(1);
+          expect( buf.getMaxSize() ).toBe(sz);
+          expect( buf.pop() ).toBe(1);
+          expect( buf.getSize() ).toBe(0);
+          expect( buf.getMaxSize() ).toBe(sz);
+        }
+      ) );
+
+    });
 
     test('can take 3 number items', () => {
       const rb = new RingBuffer<number>(3);
@@ -85,6 +105,6 @@ describe('Ring buffer', () => {
       });
     });
 
-  })
+  });
 
 } );

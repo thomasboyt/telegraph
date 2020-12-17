@@ -52,9 +52,10 @@ export class RingBuffer<T> {
 
 
 
-  getSize() : number  { return this.size; }
-  isEmpty() : boolean { return this.size === 0; }
-  front()   : T       { return this.elements[this.tail]; }
+  getSize()    : number  { return this.size; }
+  getMaxSize() : number  { return this.maxSize; }
+  isEmpty()    : boolean { return this.size === 0; }
+  front()      : T       { return this.elements[this.tail]; }
 
 
 
