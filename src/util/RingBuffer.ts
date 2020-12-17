@@ -3,6 +3,15 @@
 
 // TODO(StoneCypher): let's test this
 
+// Reference: https://en.wikipedia.org/wiki/Circular_buffer
+//
+// Circular or Ring Buffer.
+//
+// Datastructure is a fixed-length linear datastructure which "loops" modulo its own length.  Reading increments the
+// tombstone pointer, and writing increments the future pointer.  Writing *may not* go past the tombstone; inserting
+// into a ring that is full fails, rather than to overwrite the tail as some might expect.  This is, in effect, a
+// convenience sliding window to implement pseudo-infinite streams without memory management.
+
 
 
 
