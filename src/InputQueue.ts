@@ -49,7 +49,7 @@ export class InputQueue {
 
   private frameDelay = 0;
 
-  // TODO: there's probably a more ideomatic way to do this...
+  // TODO: there's probably a more idiomatic way to do this...
   private inputs: GameInput[] = new Array(INPUT_QUEUE_LENGTH)
     .fill(null)
     .map(() => ({
