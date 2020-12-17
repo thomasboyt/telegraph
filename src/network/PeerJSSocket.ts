@@ -18,14 +18,23 @@ import { log }                                     from '../log';
  * This class gets handed a Peer that should already be connected to all
  * players.
  */
+
 export class PeerJSSocket {
-  private peer: Peer;
-  private connections: { [peerId: string]: DataConnection } = {};
-  private callbacks: SocketCallbacks;
+
+
+
+  private peer        : Peer;
+  private connections : { [peerId: string]: DataConnection } = {};
+  private callbacks   : SocketCallbacks;
+
+
+
+
 
   constructor(peer: Peer, callbacks: SocketCallbacks) {
+
     this.callbacks = callbacks;
-    this.peer = peer;
+    this.peer      = peer;
 
     for (const conn of Object.values(this.peer.connections)) {
       this.registerConnection((conn as DataConnection[])[0]);
@@ -38,9 +47,15 @@ export class PeerJSSocket {
     this.peer.on('error', (error) => {
       console.error('peer error', error);
     });
+
   }
 
-  registerConnection = (conn: DataConnection): void => {
+
+
+
+
+  registerConnection = (conn: DataConnection) : void => {
+
     this.connections[conn.peer] = conn;
 
     conn.serialization = 'json';
@@ -58,14 +73,24 @@ export class PeerJSSocket {
       log('[messages] Received', message);
       this.callbacks.onMessage(conn.peer, message);
     });
+
   };
 
-  sendTo(peerId: string, message: TelegraphMessage): void {
+
+
+
+
+
+  sendTo(peerId: string, message: TelegraphMessage) : void {
+
     assert(
       !!this.connections[peerId],
       `Tried to send message to nonexistent connection ${peerId}`
     );
+
     log('[messages] Sending', message);
     this.connections[peerId].send(message);
+
   }
+
 }
