@@ -10,6 +10,16 @@ import { LOG_ENABLED } from './constants';
 
 
 
+// TODO(StoneCypher): why is this being enforced over the native one?
+
+function assert(condition: boolean, msg: string): void {
+  if (!condition) { throw new Error(`Assertion failed - ${msg}`); }
+};
+
+
+
+
+
 function log(...items: unknown[]): void {
   if (LOG_ENABLED) { console.log(...items); }
 };
@@ -19,5 +29,6 @@ function log(...items: unknown[]): void {
 
 
 export {
-  log
+  log,
+  assert
 };

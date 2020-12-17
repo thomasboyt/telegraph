@@ -7,9 +7,8 @@ import { INPUT_QUEUE_LENGTH } from './constants';
 // TODO(StoneCypher): let's undo this pls kthx
 import isEqual from 'lodash.isequal';
 
-import { assert }    from './util/assert';
-import { log }       from './util';
-import { GameInput } from './types';
+import { log, assert } from './util';
+import { GameInput }   from './types';
 
 
 

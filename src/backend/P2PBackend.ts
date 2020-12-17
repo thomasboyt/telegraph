@@ -3,9 +3,8 @@ import { NetworkEventInput } from '../network/networkEvents';
 import { Sync }              from '../Sync';
 import { PeerJSSocket }      from '../network/PeerJSSocket';
 import { PeerJSEndpoint }    from '../network/PeerJSEndpoint';
-import { assert }            from '../util/assert';
 import { TelegraphMessage }  from '../network/messages';
-import { log }               from '../util';
+import { log, assert }       from '../util';
 
 import {
   Player,

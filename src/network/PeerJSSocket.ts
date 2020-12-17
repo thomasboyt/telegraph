@@ -3,8 +3,7 @@ import Peer, { DataConnection } from 'peerjs';
 
 import { SocketCallbacks }                         from '../types';
 import { parseTelegraphMessage, TelegraphMessage } from './messages';
-import { assert }                                  from '../util/assert';
-import { log }                                     from '../util';
+import { log, assert }                             from '../util';
 
 
 
