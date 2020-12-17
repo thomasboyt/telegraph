@@ -24,34 +24,37 @@ import { assert } from '../util';
 
 export class RingBuffer<T> {
 
+
+
   private maxSize  : number;
 
-  private head              = 0;
-  private tail              = 0;
-  private size              = 0;
-  private elements : T[]    = new Array(64);  // TODO(StoneCypher): looooooooooool no
+  private head     : number = 0;
+  private tail     : number = 0;
+  private size     : number = 0;
+
+  private elements : T[];
 
 
 
 
 
   constructor(maxSize: number) {
-    this.maxSize = maxSize;
+
+    if (maxSize < 1)                     { throw new RangeError('Size must be positive');   }
+    if (maxSize !== Math.floor(maxSize)) { throw new RangeError('Size must be an integer'); }
+
+    this.maxSize  = maxSize;
+    this.elements = new Array(maxSize + 1);
+
   }
 
 
 
 
 
-  getSize(): number  { return this.size; }
-  isEmpty(): boolean { return this.size === 0; }
-
-
-
-  front(): T {
-    assert(this.size !== this.maxSize, `Ring buffer full`);
-    return this.elements[this.tail];
-  }
+  getSize() : number  { return this.size; }
+  isEmpty() : boolean { return this.size === 0; }
+  front()   : T       { return this.elements[this.tail]; }
 
 
 
@@ -63,19 +66,15 @@ export class RingBuffer<T> {
 
 
   pop(): void {
-
-    assert(this.size !== this.maxSize, `Ring buffer full`);  // TODO(StoneCypher): why would this matter for pop?  This is probably a bug, FIXME
-
     this.tail  = (this.tail + 1) % this.maxSize;
     this.size -= 1;
-
   }
 
 
 
   push(item: T): void {
 
-    assert(this.size !== this.maxSize - 1, "Cannot push item into ring buffer, it's full");
+    assert(this.size !== this.maxSize, "Cannot push item into ring buffer, it's full");
 
     this.elements[this.head] = item;
     this.head                = (this.head + 1) % this.maxSize;
