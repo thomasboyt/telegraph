@@ -2,6 +2,8 @@
 // original:
 // https://github.com/pond3r/ggpo/blob/master/src/lib/ggpo/sync.cpp
 
+import { MAX_PREDICTION_FRAMES } from './constants';
+
 import {
   TelegraphCallbacks,
   TelegraphConfig,
@@ -13,12 +15,6 @@ import { InputQueue, GameInput } from './InputQueue';
 import { SyncInputResultValue }  from './resultTypes';
 import { assert }                from './util/assert';
 import { log }                   from './log';
-
-
-
-
-
-const MAX_PREDICTION_FRAMES = 8;
 
 
 

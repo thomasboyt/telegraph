@@ -2,6 +2,8 @@
 // original:
 // https://github.com/pond3r/ggpo/blob/master/src/lib/ggpo/input_queue.cpp
 
+import { INPUT_QUEUE_LENGTH } from './constants';
+
 // TODO(StoneCypher): let's undo this pls kthx
 import isEqual from 'lodash.isequal';
 
@@ -12,8 +14,6 @@ import { GameInput } from './types';
 
 
 
-
-const INPUT_QUEUE_LENGTH = 128;
 
 const previousFrame = (offset: number): number =>
   ((offset === 0) ? INPUT_QUEUE_LENGTH : offset) - 1;

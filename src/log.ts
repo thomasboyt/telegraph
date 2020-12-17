@@ -4,14 +4,14 @@
 // - saves to in-memory log instead of `console.log` (slow)
 // - but can still be tailed somehow?
 
+import { LOG_ENABLED } from './constants';
 
 
 
 
-const logEnabled = false;
 
 function log(...items: unknown[]): void {
-  if (logEnabled) { console.log(...items); }
+  if (LOG_ENABLED) { console.log(...items); }
 };
 
 
