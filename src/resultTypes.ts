@@ -1,29 +1,46 @@
+
 import { PlayerHandle, InputValues } from './types';
 
-export interface VoidResult<C> {
-  code: C;
+
+
+interface VoidResult<C>     { code: C; }
+interface ValueResult<T, C> { code: C; value: T | null; }
+
+
+
+type ResultOk                        = 'ok';
+type ResultPlayerOutOfRange          = 'playerOutOfRange';
+type ResultInRollback                = 'inRollback';
+type ResultNotSynchronized           = 'notSynchronized';
+type ResultInvalidPlayerHandle       = 'invalidPlayerHandle';
+type ResultPredictionThreshold       = 'predictionThreshold';
+type ResultPlayerAlreadyDisconnected = 'playerAlreadyDisconnected';
+type ResultNotSupported              = 'notSupported';
+
+
+
+interface SyncInputResultValue {
+  inputs       : InputValues[];
+  disconnected : boolean[];
 }
 
-export interface ValueResult<T, C> {
-  value: T | null;
-  code: C;
-}
 
-export type ResultOk = 'ok';
-export type ResultPlayerOutOfRange = 'playerOutOfRange';
-export type ResultInRollback = 'inRollback';
-export type ResultNotSynchronized = 'notSynchronized';
-export type ResultInvalidPlayerHandle = 'invalidPlayerHandle';
-export type ResultPredictionThreshold = 'predictionThreshold';
-export type ResultPlayerAlreadyDisconnected = 'playerAlreadyDisconnected';
-export type ResultNotSupported = 'notSupported';
 
-export type AddPlayerResult = ValueResult<
+type AddPlayerResult = ValueResult<
   PlayerHandle,
   ResultOk | ResultPlayerOutOfRange
 >;
 
-export type AddLocalInputResult = VoidResult<
+
+
+type SyncInputResult = ValueResult<
+  SyncInputResultValue,
+  ResultOk | ResultNotSynchronized
+>;
+
+
+
+type AddLocalInputResult = VoidResult<
   | ResultOk
   | ResultInRollback
   | ResultNotSynchronized
@@ -31,12 +48,28 @@ export type AddLocalInputResult = VoidResult<
   | ResultPredictionThreshold
 >;
 
-export interface SyncInputResultValue {
-  inputs: InputValues[];
-  disconnected: boolean[];
-}
 
-export type SyncInputResult = ValueResult<
-  SyncInputResultValue,
-  ResultOk | ResultNotSynchronized
->;
+
+
+
+export {
+
+  VoidResult,
+    ValueResult,
+
+  ResultOk,
+    ResultPlayerOutOfRange,
+    ResultInRollback,
+    ResultNotSynchronized,
+    ResultInvalidPlayerHandle,
+    ResultPredictionThreshold,
+    ResultPlayerAlreadyDisconnected,
+    ResultNotSupported,
+
+  SyncInputResult,
+    SyncInputResultValue,
+
+  AddPlayerResult,
+    AddLocalInputResult
+
+};
