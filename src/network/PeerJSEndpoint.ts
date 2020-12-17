@@ -1,4 +1,12 @@
 
+import {
+  NUM_SYNC_PACKETS, SYNC_RETRY_INTERVAL, SYNC_FIRST_RETRY_INTERVAL,
+  RUNNING_RETRY_INTERVAL, KEEP_ALIVE_INTERVAL, QUALITY_REPORT_INTERVAL,
+  NETWORK_STATS_INTERVAL, SHUTDOWN_TIMER
+} from '../constants';
+
+
+
 import { ConnectionStatus, InputValues, TelegraphNetworkStats } from '../types';
 import { GameInput }                                            from '../InputQueue';
 import { RingBuffer }                                           from '../util/RingBuffer';
@@ -23,18 +31,6 @@ import {
   NetworkEventDisconnected,
   NetworkEventResumed,
 } from './networkEvents';
-
-
-
-
-const NUM_SYNC_PACKETS = 5;
-const SYNC_RETRY_INTERVAL = 2000;
-const SYNC_FIRST_RETRY_INTERVAL = 200;
-const RUNNING_RETRY_INTERVAL = 200;
-const KEEP_ALIVE_INTERVAL = 200;
-const QUALITY_REPORT_INTERVAL = 1000;
-const NETWORK_STATS_INTERVAL = 1000;
-const SHUTDOWN_TIMER = 5000;
 
 
 
