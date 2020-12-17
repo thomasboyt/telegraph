@@ -13,7 +13,7 @@ export interface GameInput {
 const INPUT_QUEUE_LENGTH = 128;
 
 const previousFrame = (offset: number): number =>
-  offset === 0 ? INPUT_QUEUE_LENGTH - 1 : offset - 1;
+  ((offset === 0) ? INPUT_QUEUE_LENGTH : offset) - 1;
 
 const equalInputs = (a: GameInput, b: GameInput): boolean => {
   // TODO: maybe something faster?
@@ -51,11 +51,8 @@ export class InputQueue {
 
   // TODO: there's probably a more idiomatic way to do this...
   private inputs: GameInput[] = new Array(INPUT_QUEUE_LENGTH)
-    .fill(null)
-    .map(() => ({
-      frame: 0,
-      inputs: [],
-    }));
+    .fill({ frame: 0, inputs: [] });
+
   private prediction: GameInput | null = null;
 
   /**
