@@ -29,11 +29,19 @@ export class RingBuffer<T> {
   private head              = 0;
   private tail              = 0;
   private size              = 0;
-  private elements : T[]    = new Array(64);
+  private elements : T[]    = new Array(64);  // TODO(StoneCypher): looooooooooool no
 
 
 
-  constructor(maxSize: number) { this.maxSize = maxSize; }
+
+
+  constructor(maxSize: number) {
+    this.maxSize = maxSize;
+  }
+
+
+
+
 
   getSize(): number  { return this.size; }
   isEmpty(): boolean { return this.size === 0; }
