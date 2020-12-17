@@ -1,44 +1,64 @@
+
 import { GameInput } from '../InputQueue';
 
-export interface NetworkEventInput {
+
+
+
+
+interface NetworkEventConnected    { type: 'connected';    }
+interface NetworkEventDisconnected { type: 'disconnected'; }
+interface NetworkEventResumed      { type: 'resumed';      }
+interface NetworkEventSynchronized { type: 'synchronized'; }
+
+
+
+
+
+interface NetworkEventInput {
+
   type: 'input';
+
   input: {
     input: GameInput;
   };
+
 }
 
-export interface NetworkEventInterrupted {
+
+
+
+
+interface NetworkEventInterrupted {
+
   type: 'interrupted';
+
   interrupted: {
     disconnectTimeout: number;
   };
+
 }
 
-export interface NetworkEventDisconnected {
-  type: 'disconnected';
-}
 
-export interface NetworkEventResumed {
-  type: 'resumed';
-}
 
-export interface NetworkEventConnected {
-  type: 'connected';
-}
 
-export interface NetworkEventSynchronizing {
+
+interface NetworkEventSynchronizing {
+
   type: 'synchronizing';
+
   synchronizing: {
     total: number;
     count: number;
   };
+
 }
 
-export interface NetworkEventSynchronized {
-  type: 'synchronized';
-}
 
-export type NetworkEvent =
+
+
+
+type NetworkEvent =
+
   | NetworkEventConnected
   | NetworkEventSynchronizing
   | NetworkEventSynchronized
@@ -46,3 +66,20 @@ export type NetworkEvent =
   | NetworkEventDisconnected
   | NetworkEventInterrupted
   | NetworkEventResumed;
+
+
+
+
+
+export {
+
+  NetworkEvent,
+    NetworkEventConnected,
+    NetworkEventInput,
+    NetworkEventInterrupted,
+    NetworkEventDisconnected,
+    NetworkEventResumed,
+    NetworkEventSynchronizing,
+    NetworkEventSynchronized
+
+};
