@@ -1,5 +1,5 @@
 
-import { PlayerHandle, InputValues } from './types';
+import { PlayerHandle, InputValues, TelegraphNetworkStats } from './types';
 
 
 
@@ -50,12 +50,22 @@ type AddLocalInputResult = VoidResult<
 
 
 
+type VoidOk           = VoidResult<ResultOk>;
+type DisconnectResult = VoidResult<ResultOk | ResultInvalidPlayerHandle | ResultPlayerAlreadyDisconnected>;
+type FrameDelayResult = VoidResult<ResultOk | ResultInvalidPlayerHandle>;
+
+type NetstatsResult   = ValueResult<TelegraphNetworkStats, ResultOk | ResultInvalidPlayerHandle>;
 
 
 export {
 
   VoidResult,
     ValueResult,
+
+  VoidOk,
+    DisconnectResult,
+    NetstatsResult,
+    FrameDelayResult,
 
   ResultOk,
     ResultPlayerOutOfRange,

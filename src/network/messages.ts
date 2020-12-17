@@ -5,6 +5,8 @@ import { PathReporter }      from 'io-ts/lib/PathReporter';
 import { isLeft }            from 'fp-ts/lib/Either';
 import { connectionStatusC } from '../types';
 
+// TODO(StoneCypher): um let's get this magic out of here
+
 
 
 

@@ -20,6 +20,12 @@ import {
 import {
   ValueResult,
   VoidResult,
+
+  VoidOk,
+    DisconnectResult,
+    NetstatsResult,
+    FrameDelayResult,
+
   ResultOk,
   ResultInvalidPlayerHandle,
   ResultPlayerAlreadyDisconnected,
@@ -90,9 +96,7 @@ export class P2PBackend {
 
 
 
-  private forEachEndpoint(
-    cb: (endpoint: PeerJSEndpoint, queueIdx: number) => void
-  ): void {
+  private forEachEndpoint( cb: (endpoint: PeerJSEndpoint, queueIdx: number) => void ): void {
 
     this.endpoints.forEach( (endpoint, idx) => {
       if (!endpoint) { return; }
@@ -152,10 +156,7 @@ export class P2PBackend {
 
 
 
-  addLocalInput(
-    handle      : PlayerHandle,
-    inputValues : InputValues
-  ) : AddLocalInputResult {
+  addLocalInput(handle : PlayerHandle, inputValues : InputValues) : AddLocalInputResult {
 
     log('adding local input');
 
@@ -198,7 +199,7 @@ export class P2PBackend {
 
 
 
-  incrementFrame(): VoidResult<ResultOk> {
+  incrementFrame(): VoidOk {
     this.sync.incrementFrame();
     return { code: 'ok' };
   }
@@ -464,9 +465,7 @@ export class P2PBackend {
    * decisions (though I'm not sure where those "decisions" come from)
    */
 
-  disconnectPlayer(handle: PlayerHandle): VoidResult<
-    ResultOk | ResultInvalidPlayerHandle | ResultPlayerAlreadyDisconnected
-  > {
+  disconnectPlayer(handle: PlayerHandle): DisconnectResult {
 
     const result = this.playerHandleToQueueIdx(handle);
     if (result.code !== 'ok') { return result; }
@@ -527,7 +526,7 @@ export class P2PBackend {
 
 
 
-  getNetworkStats(handle: PlayerHandle): ValueResult<TelegraphNetworkStats, ResultOk | ResultInvalidPlayerHandle> {
+  getNetworkStats(handle: PlayerHandle): NetstatsResult {
 
     const result = this.playerHandleToQueueIdx(handle);
     if (result.code !== 'ok') { return { code: result.code, value: null }; }
@@ -573,7 +572,7 @@ export class P2PBackend {
 
 
 
-  private playerHandleToQueueIdx(handle: PlayerHandle): ValueResult<number, ResultOk | ResultInvalidPlayerHandle> {
+  private playerHandleToQueueIdx(handle: PlayerHandle): ValueResult<number, ResultOk | ResultInvalidPlayerHandle> { // TODO(StoneCypher): Extract this result type
 
     const offset  = handle - 1,
           invalid = (offset < 0 || offset >= this.numPlayers);
@@ -617,7 +616,7 @@ export class P2PBackend {
 
 
 
-  setFrameDelay(handle: PlayerHandle, delay: number): VoidResult<ResultOk | ResultInvalidPlayerHandle> {
+  setFrameDelay(handle: PlayerHandle, delay: number): FrameDelayResult {
 
     const result = this.playerHandleToQueueIdx(handle);
     if (result.code !== 'ok') { return { code: result.code }; }
