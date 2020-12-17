@@ -117,11 +117,9 @@ export class P2PBackend {
       return { value: null, code: 'playerOutOfRange' };
     }
 
+    // TODO(StoneCypher): these can probably be flipped to reduce but get testing in first
     const handle = this.queueIdxToPlayerHandle(queueIdx);
-
-    if (player.type === PlayerType.remote) {
-      this.addRemotePlayer(player.remote!.peerId, queueIdx);
-    }
+    if (player.type === PlayerType.remote) { this.addRemotePlayer(player.remote!.peerId, queueIdx); }
 
     return { value: handle, code: 'ok' };
 
@@ -296,10 +294,7 @@ export class P2PBackend {
       }
 
       if (!this.localConnectionStatus[queueIdx].disconnected) {
-        totalMinConfirmed = Math.min(
-          this.localConnectionStatus[queueIdx].lastFrame,
-          totalMinConfirmed
-        );
+        totalMinConfirmed = Math.min(this.localConnectionStatus[queueIdx].lastFrame, totalMinConfirmed);
       }
 
       if (!queueConnected && !this.localConnectionStatus[queueIdx]) {
@@ -342,70 +337,57 @@ export class P2PBackend {
 
       const playerHandle = this.queueIdxToPlayerHandle(queueIdx);
 
-      endpoint.processEventsQueue((evt) => {
+      endpoint.processEventsQueue( evt => {
 
         log('*** processing event', evt);
 
 
-        if (evt.type === 'input') {
-
-          // if queue not disconnected, add a remote input and update frame
+        if (evt.type === 'input') { // if queue not disconnected, add a remote input and update frame
           this.handleRemoteInput(queueIdx, evt);
 
 
         } else if (evt.type === 'disconnected') {
-
           this.disconnectPlayer(playerHandle);
 
 
         } else if (evt.type === 'connected') {
-
-          const outgoing: TelegraphEventConnected = { type: 'connected', connected: { playerHandle } };
-          this.callbacks.onEvent(outgoing);
+          this.callbacks.onEvent({ type: 'connected', connected: { playerHandle } });
 
 
         } else if (evt.type === 'synchronizing') {
-
-          const outgoing: TelegraphEventSynchronizing = {
-            type          : 'synchronizing',
+          this.callbacks.onEvent({
+            type: 'synchronizing',
             synchronizing : {
               playerHandle,
               count        : evt.synchronizing.count,
               total        : evt.synchronizing.total
             }
-          };
-
-          this.callbacks.onEvent(outgoing);
+          });
 
 
         } else if (evt.type === 'synchronized') {
-
-          const outgoing: TelegraphEventSynchronized = { type: 'synchronized', synchronized: { playerHandle } };
-
-          this.callbacks.onEvent(outgoing);
+          this.callbacks.onEvent({ type: 'synchronized', synchronized: { playerHandle } });
           this.checkInitialSync();  // since this player has synchronized, check to see if all players have synchronized
 
 
         } else if (evt.type === 'interrupted') {
-
-          const outgoing: TelegraphEventConnectionInterrupted = {
+          this.callbacks.onEvent({
             type                  : 'connectionInterrupted',
-            connectionInterrupted : { playerHandle, disconnectTimeout: evt.interrupted.disconnectTimeout }
-          };
-
-          this.callbacks.onEvent(outgoing);
+            connectionInterrupted : {
+              playerHandle,
+              disconnectTimeout: evt.interrupted.disconnectTimeout
+            }
+          });
 
 
         } else if (evt.type === 'resumed') {
-
-          const outgoing: TelegraphEventConnectionResumed = {
+          this.callbacks.onEvent({
             type: 'connectionResumed',
             connectionResumed: { playerHandle }
-          };
+          });
 
-          this.callbacks.onEvent(outgoing);
 
-        }
+        } // TODO(StoneCypher): put a never type here to catch exclusion faults
 
 
 
@@ -462,13 +444,9 @@ export class P2PBackend {
 
     if (this.localConnectionStatus[queueIdx].disconnected) { return { code: 'playerAlreadyDisconnected' }; }
 
-    const endpoint = this.getEndpoint(queueIdx);
-
-    if (!endpoint) { // local player is disconnecting, so mark all other endpoints as disconnected
-
+    if (! this.getEndpoint(queueIdx) ) { // local player is disconnecting, so mark all other endpoints as disconnected
       const currentFrame = this.sync.getFrameCount();
       this.forEachEndpoint( (endpoint, queueIdx) => this.disconnectPlayerQueue(queueIdx, currentFrame) );
-
     } else {
       this.disconnectPlayerQueue(queueIdx, this.localConnectionStatus[queueIdx].lastFrame);
     }
@@ -498,12 +476,10 @@ export class P2PBackend {
     // roll back to where player disconnected
     if (syncTo < frameCount) { this.sync.adjustSimulation(syncTo); }
 
-    const event: TelegraphEventDisconnected = {
+    this.callbacks.onEvent({
       type         : 'disconnected',
       disconnected : { playerHandle : this.queueIdxToPlayerHandle(queueIdx) }
-    };
-
-    this.callbacks.onEvent(event);
+    });
 
     // in case a player disconnects during the initial synchronization
     this.checkInitialSync();
@@ -575,18 +551,15 @@ export class P2PBackend {
     }
 
     this.forEachEndpoint((endpoint, queueIdx) => {
-      if (
-        !endpoint.isSynchronized() &&
-        !this.localConnectionStatus[queueIdx].disconnected
-      ) {
+
+      if ( !endpoint.isSynchronized() && !this.localConnectionStatus[queueIdx].disconnected ) {
         log(`Waiting for ${queueIdx} to sync`);
         return;
       }
 
-      const event: TelegraphEventRunning = { type: 'running' };
-
-      this.callbacks.onEvent(event);
+      this.callbacks.onEvent({ type: 'running' });
       this.synchronizing = false;
+
       log('[Backend] Synchronized all peers');
 
     });
