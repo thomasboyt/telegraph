@@ -17,29 +17,30 @@ import { GameInput }   from './types';
 const previousFrame = (offset: number): number =>
   ((offset === 0) ? INPUT_QUEUE_LENGTH : offset) - 1;
 
-const equalInputs = (a: GameInput, b: GameInput): boolean => {
-  // TODO: maybe something faster?
-  return isEqual(a, b);
-};
+const equalInputs = (a: GameInput, b: GameInput): boolean =>
+  (a.frame === b.frame) &&
+  (a.inputs.every( (ai, i) => b.inputs[i] === ai ));
+
+// was: isEqual(a, b);  // TODO: maybe something faster?
+// TODO(StoneCypher): this appears to be the only use of lodash; remove it
+// it appears to be { frame: number, inputs: number[] }
 
 
 
 
 
-/**
- * InputQueue stores inputs for frames in a quirky fixed-length array, reusing
- * indices as it circles around. It has a lot of very odd bookkeeping because of
- * it.
+/*********
  *
- * I'm not sure of a more idiomatic way to do this. One of the quirkier aspects
- * is that it is theoretically possible to _overflow_ the queue, but I think
- * that shouldn't happen in a world where (a) the prediction barrier prevents
- * local queues from growing and (b) remote queues only grow as high as the
- * frame delay.
+ *  InputQueue stores inputs for frames in a quirky fixed-length array, reusing indices as it circles around. It has a
+ *  lot of very odd bookkeeping because of
+ *  it.
+ *
+ *  I'm not sure of a more idiomatic way to do this. One of the quirkier aspects is that it is theoretically possible
+ *  to _overflow_ the queue, but I think that shouldn't happen in a world where (a) the prediction barrier prevents
+ *  local queues from growing and (b) remote queues only grow as high as the frame delay.
  */
 
-// TODO(StoneCypher): this would be faster and easier to read in functional as
-// a named tuple
+// TODO(StoneCypher): this would be faster and easier to read in functional as a named tuple
 
 class InputQueue {
 
@@ -116,8 +117,8 @@ class InputQueue {
       this.tail = this.head;
     } else {
 
-      const tailFrame = this.inputs[this.tail].frame;
-      const offset    = frame - tailFrame + 1;
+      const tailFrame = this.inputs[this.tail].frame,
+            offset    = frame - tailFrame + 1;
 
       assert(offset >= 0, 'Cannot have negative offset');
 
