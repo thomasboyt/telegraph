@@ -2,14 +2,16 @@
 // original:
 // https://github.com/pond3r/ggpo/blob/master/src/lib/ggpo/input_queue.cpp
 
+// TODO(StoneCypher): let's undo this pls kthx
 import isEqual from 'lodash.isequal';
-import { assert } from './util/assert';
-import { log } from './log';
 
-export interface GameInput {
-  frame: number;
-  inputs: number[];
-}
+import { assert }    from './util/assert';
+import { log }       from './log';
+import { GameInput } from './types';
+
+
+
+
 
 const INPUT_QUEUE_LENGTH = 128;
 
@@ -36,36 +38,45 @@ const equalInputs = (a: GameInput, b: GameInput): boolean => {
  * local queues from growing and (b) remote queues only grow as high as the
  * frame delay.
  */
-export class InputQueue {
+
+class InputQueue {
 
   private length = 0;
 
   // head and tail are always 0 <= n <= length and keep track of where exactly
   // this queue is
-  /** the index the next item will be inserted at */
-  private head = 0;
-  /** the index the first item in the queue is at */
-  private tail = 0;
 
-  private lastUserAddedFrame = -1;
+  private head = 0;  /** the index the next item will be inserted at */
+  private tail = 0;  /** the index the first item in the queue is at */
+
+  private lastUserAddedFrame  = -1;
   private firstIncorrectFrame = -1;
-  private lastFrameRequested = -1;
-  private lastAddedFrame = -1;
-  private isFirstFrame = true;
+  private lastFrameRequested  = -1;
+  private lastAddedFrame      = -1;
 
-  private frameDelay = 0;
+  private isFirstFrame = true;
+  private frameDelay   = 0;
 
   private inputs: GameInput[] = new Array(INPUT_QUEUE_LENGTH).fill({ frame: 0, inputs: [] });
 
   private prediction: GameInput | null = null;
 
+
+
+
+
   /**
    * Returns the first incorrect frame in the queue, so Sync knows where to play
    * back from.
    */
+
   getFirstIncorrectFrame(): number {
     return this.firstIncorrectFrame;
   }
+
+
+
+
 
   /**
    * Remove confirmed inputs once we have processed them. We "remove" inputs by
@@ -77,6 +88,7 @@ export class InputQueue {
    * needed for any rollbacks that players incur. So, the incoming frame arg
    * here is the "minimum confirmed frame for all players.""
    */
+
   discardConfirmedFrames(frame: number): void {
 
     assert(frame >= 0, 'cannot discard negative frames');
@@ -109,7 +121,7 @@ export class InputQueue {
 
       assert(offset >= 0, 'cannot have negative offset');
 
-      this.tail = (this.tail + offset) % INPUT_QUEUE_LENGTH;
+      this.tail    = (this.tail + offset) % INPUT_QUEUE_LENGTH;
       this.length -= offset;
 
     }
@@ -381,3 +393,9 @@ export class InputQueue {
   }
 
 }
+
+
+
+
+
+export { GameInput, InputQueue };
