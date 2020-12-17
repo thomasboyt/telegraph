@@ -1,11 +1,14 @@
-import Peer, { DataConnection } from 'peerjs';
-import { assert } from '../util/assert';
-import { parseTelegraphMessage, TelegraphMessage } from './messages';
-import { log } from '../log';
 
-interface SocketCallbacks {
-  onMessage(fromId: string, msg: TelegraphMessage): void;
-}
+import Peer, { DataConnection } from 'peerjs';
+
+import { SocketCallbacks }                         from '../types';
+import { parseTelegraphMessage, TelegraphMessage } from './messages';
+import { assert }                                  from '../util/assert';
+import { log }                                     from '../log';
+
+
+
+
 
 /**
  * This class handles storing all of the different data connections for

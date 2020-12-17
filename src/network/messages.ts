@@ -1,12 +1,18 @@
 import * as t from 'io-ts';
-import { PathReporter } from 'io-ts/lib/PathReporter';
-import { isLeft } from 'fp-ts/lib/Either';
+
+import { PathReporter }      from 'io-ts/lib/PathReporter';
+import { isLeft }            from 'fp-ts/lib/Either';
 import { connectionStatusC } from '../types';
+
+
+
+
 
 // TODO: we may want to use the "magic number" field from GGPO, which I think
 // is basically just extremely naive authentication by designating a magic
 // number that must always be in a socket for a given connection? but that
 // might be overkill for webrtc
+
 const baseMessage = {
   sequenceNumber: t.number,
 };
