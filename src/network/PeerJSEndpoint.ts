@@ -128,10 +128,10 @@ export class PeerJSEndpoint {
 
 
   constructor(opts: PeerJSEndpointOptions) {
-    this.socket = opts.socket;
-    this.peerId = opts.peerId;
+    this.socket                = opts.socket;
+    this.peerId                = opts.peerId;
     this.localConnectionStatus = opts.localConnectionStatus;
-    this.disconnectTimeout = opts.disconnectTimeout;
+    this.disconnectTimeout     = opts.disconnectTimeout;
     this.disconnectNotifyStart = opts.disconnectNotifyStart;
   }
 
@@ -209,15 +209,18 @@ export class PeerJSEndpoint {
     const ackFrame = this.lastRecvInput?.frame ?? -1;
 
     const inputMessage: MessageInput = {
-      type: 'input',
-      sequenceNumber: this.getAndIncrementSendSeq(),
-      input: {
+
+      type           : 'input',
+      sequenceNumber : this.getAndIncrementSendSeq(),
+
+      input          : {
         ackFrame,
         startFrame,
-        disconnectRequested: this.currentState === State.disconnected,
-        peerConnectStatus: this.localConnectionStatus,
         inputs,
+        disconnectRequested : this.currentState === State.disconnected,
+        peerConnectStatus   : this.localConnectionStatus
       }
+
     };
 
     this.sendMessage(inputMessage);
@@ -276,6 +279,7 @@ export class PeerJSEndpoint {
     const now = performance.now();
 
     if (this.currentState === State.synchronizing) {
+
       const nextInterval =
         this.stateDetail.sync.roundtripsRemaining === NUM_SYNC_PACKETS
           ? SYNC_FIRST_RETRY_INTERVAL
@@ -311,18 +315,24 @@ export class PeerJSEndpoint {
 
       // Send quality reports on interval
       if (runningState.lastQualityReportTime + QUALITY_REPORT_INTERVAL < now) {
-        const msg: MessageQualityReport = {
-          type: 'qualityReport',
-          sequenceNumber: this.getAndIncrementSendSeq(),
-          qualityReport: {
-            frameAdvantage: this.localFrameAdvantage,
-            ping: now,
-          },
+
+        const msg : MessageQualityReport = {
+
+          type           : 'qualityReport',
+          sequenceNumber : this.getAndIncrementSendSeq(),
+
+          qualityReport  : {
+            frameAdvantage : this.localFrameAdvantage,
+            ping           : now
+          }
+
         };
 
         this.sendMessage(msg);
         this.stateDetail.running.lastQualityReportTime = now;
+
       }
+
 
       // Update network stats on interval
       if (
@@ -376,7 +386,9 @@ export class PeerJSEndpoint {
         this.disconnectEventSent = true;
 
       }
+
     }
+
   }
 
 
@@ -428,13 +440,13 @@ export class PeerJSEndpoint {
     // might be nice to type this properly some day:
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handlers: { [type: string]: (msg: any) => boolean } = {
-      syncRequest: this.handleSyncRequest,
-      syncReply: this.handleSyncReply,
-      qualityReport: this.handleQualityReport,
-      qualityReply: this.handleQualityReply,
-      input: this.handleInput,
-      inputAck: this.handleInputAck,
-      keepAlive: this.handleKeepAlive,
+      syncRequest   : this.handleSyncRequest,
+      syncReply     : this.handleSyncReply,
+      qualityReport : this.handleQualityReport,
+      qualityReply  : this.handleQualityReply,
+      input         : this.handleInput,
+      inputAck      : this.handleInputAck,
+      keepAlive     : this.handleKeepAlive
     };
 
     // TODO: drop wildly out of order packets here?
