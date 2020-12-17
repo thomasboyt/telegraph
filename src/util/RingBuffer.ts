@@ -65,9 +65,15 @@ export class RingBuffer<T> {
 
 
 
-  pop(): void {
+  pop(): T {
+
+    const retval: T = this.elements[this.tail];
+
     this.tail  = (this.tail + 1) % this.maxSize;
     this.size -= 1;
+
+    return retval;
+
   }
 
 

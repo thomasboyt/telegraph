@@ -29,15 +29,33 @@ describe('Ring buffer', () => {
       rb.push(1);
       rb.push(2);
       rb.push(3);
-      expect( () => rb.pop() ).toBe(1);
+      expect( rb.pop() ).toBe(1);
       rb.push(4);
-      expect( () => rb.pop() ).toBe(2);
+      expect( rb.pop() ).toBe(2);
       rb.push(5);
-      expect( () => rb.pop() ).toBe(3);
+      expect( rb.pop() ).toBe(3);
       rb.push(6);
-      expect( () => rb.pop() ).toBe(4);
+      expect( rb.pop() ).toBe(4);
       rb.push(7);
-      expect( () => rb.pop() ).toBe(5);
+      expect( rb.pop() ).toBe(5);
+    });
+
+    test('cannot break 3 depth after several cycles', () => {
+      const rb = new RingBuffer<number>(3);
+      rb.push(1);
+      rb.push(2);
+      rb.push(3);
+      expect( rb.pop() ).toBe(1);
+      rb.push(4);
+      expect( rb.pop() ).toBe(2);
+      rb.push(5);
+      expect( rb.pop() ).toBe(3);
+      rb.push(6);
+      expect( rb.pop() ).toBe(4);
+      rb.push(7);
+      expect( rb.pop() ).toBe(5);
+      rb.push(8);
+      expect( () => rb.push(9) ).toThrow('Cannot push item into ring buffer, it\'s full');
     });
 
     test('cannot create zero-sized ring', () => {
@@ -56,6 +74,15 @@ describe('Ring buffer', () => {
       expect( () => {
         const rb = new RingBuffer<number>(1.5);
       }).toThrow('Size must be an integer');
+    });
+
+    test('cannot pop beyond available contents', () => {
+      expect( () => {
+        const rb = new RingBuffer<number>(3);
+        rb.push(1);
+        expect( rb.pop() ).toBe(1);
+        expect( () => rb.pop() ).toThrow('Cannot pop from empty ring buffer');
+      });
     });
 
   })
