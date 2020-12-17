@@ -75,9 +75,7 @@ export class P2PBackend {
     this.disconnectTimeout     = config.disconnectTimeout;
     this.disconnectNotifyStart = config.disconnectNotifyStart;
 
-    this.socket = new PeerJSSocket(config.peer, {
-      onMessage: this.onMessage.bind(this),
-    });
+    this.socket = new PeerJSSocket(config.peer, { onMessage: this.onMessage.bind(this) });
 
   }
 
@@ -135,16 +133,16 @@ export class P2PBackend {
     this.synchronizing = true;
 
     this.endpoints[queueIdx] = new PeerJSEndpoint({
-      socket: this.socket,
       peerId,
-      localConnectionStatus: this.localConnectionStatus,
-      disconnectTimeout: this.disconnectTimeout,
-      disconnectNotifyStart: this.disconnectNotifyStart,
+      socket                : this.socket,
+      localConnectionStatus : this.localConnectionStatus,
+      disconnectTimeout     : this.disconnectTimeout,
+      disconnectNotifyStart : this.disconnectNotifyStart,
     });
 
     this.localConnectionStatus[queueIdx] = {
-      disconnected: false,
-      lastFrame: -1,
+      disconnected : false,
+      lastFrame    : -1,
     };
 
     this.endpoints[queueIdx].synchronize();
@@ -156,9 +154,9 @@ export class P2PBackend {
 
 
   addLocalInput(
-    handle: PlayerHandle,
-    inputValues: InputValues
-  ): AddLocalInputResult {
+    handle      : PlayerHandle,
+    inputValues : InputValues
+  ) : AddLocalInputResult {
 
     log('adding local input');
 
@@ -230,9 +228,7 @@ export class P2PBackend {
 
     log('*** processing updates');
 
-    if (this.sync.getInRollback()) {
-      return;
-    }
+    if (this.sync.getInRollback()) { return; }
 
     this.forEachEndpoint((endpoint) => {
       endpoint.onTick();
@@ -311,7 +307,7 @@ export class P2PBackend {
       let queueConnected = true;
 
       if (endpoint && endpoint.isRunning()) {
-        const status = endpoint.getPeerConnectStatus(queueIdx);
+        const status   = endpoint.getPeerConnectStatus(queueIdx);
         queueConnected = !status.disconnected;
       }
 
@@ -369,70 +365,74 @@ export class P2PBackend {
 
 
         if (evt.type === 'input') {
+
           // if queue not disconnected, add a remote input and update frame
           this.handleRemoteInput(queueIdx, evt);
 
 
         } else if (evt.type === 'disconnected') {
+
           this.disconnectPlayer(handle);
 
 
         } else if (evt.type === 'connected') {
+
           const outgoing: TelegraphEventConnected = {
-            type: 'connected',
-            connected: {
-              playerHandle: handle,
-            },
+            type      : 'connected',
+            connected : { playerHandle: handle }
           };
+
           this.callbacks.onEvent(outgoing);
 
 
         } else if (evt.type === 'synchronizing') {
+
           const outgoing: TelegraphEventSynchronizing = {
             type: 'synchronizing',
             synchronizing: {
               playerHandle: handle,
               count: evt.synchronizing.count,
-              total: evt.synchronizing.total,
-            },
+              total: evt.synchronizing.total
+            }
           };
+
           this.callbacks.onEvent(outgoing);
 
 
         } else if (evt.type === 'synchronized') {
           const outgoing: TelegraphEventSynchronized = {
-            type: 'synchronized',
-            synchronized: {
-              playerHandle: handle,
-            },
+            type         : 'synchronized',
+            synchronized : { playerHandle: handle }
           };
-          this.callbacks.onEvent(outgoing);
 
-          // since this player has synchronized, check to see if all players
-          // have synchronized!
-          this.checkInitialSync();
+          this.callbacks.onEvent(outgoing);
+          this.checkInitialSync();  // since this player has synchronized, check to see if all players have synchronized!
 
 
         } else if (evt.type === 'interrupted') {
           const outgoing: TelegraphEventConnectionInterrupted = {
-            type: 'connectionInterrupted',
-            connectionInterrupted: {
+            type                  : 'connectionInterrupted',
+            connectionInterrupted : {
               playerHandle: handle,
-              disconnectTimeout: evt.interrupted.disconnectTimeout,
-            },
+              disconnectTimeout: evt.interrupted.disconnectTimeout
+            }
           };
+
           this.callbacks.onEvent(outgoing);
 
 
         } else if (evt.type === 'resumed') {
+
           const outgoing: TelegraphEventConnectionResumed = {
-            type: 'connectionResumed',
-            connectionResumed: {
-              playerHandle: handle,
-            },
+            type              : 'connectionResumed',
+            connectionResumed : { playerHandle: handle }
           };
+
           this.callbacks.onEvent(outgoing);
+
         }
+
+
 
       });
 
