@@ -1,3 +1,4 @@
+
 import * as t from 'io-ts';
 
 import { PathReporter }      from 'io-ts/lib/PathReporter';
@@ -13,9 +14,9 @@ import { connectionStatusC } from '../types';
 // number that must always be in a socket for a given connection? but that
 // might be overkill for webrtc
 
-const baseMessage = {
-  sequenceNumber: t.number,
-};
+const baseMessage = { sequenceNumber: t.number };
+
+
 
 const syncRequestMessage = t.type({
   ...baseMessage,
@@ -28,6 +29,8 @@ const syncRequestMessage = t.type({
 
 export type MessageSyncRequest = t.TypeOf<typeof syncRequestMessage>;
 
+
+
 const syncReplyMessage = t.type({
   ...baseMessage,
   type: t.literal('syncReply'),
@@ -38,6 +41,8 @@ const syncReplyMessage = t.type({
 });
 
 export type MessageSyncReply = t.TypeOf<typeof syncReplyMessage>;
+
+
 
 const qualityReportMessage = t.type({
   ...baseMessage,
@@ -52,6 +57,8 @@ const qualityReportMessage = t.type({
 
 export type MessageQualityReport = t.TypeOf<typeof qualityReportMessage>;
 
+
+
 const qualityReplyMessage = t.type({
   ...baseMessage,
   type: t.literal('qualityReply'),
@@ -61,6 +68,8 @@ const qualityReplyMessage = t.type({
 });
 
 export type MessageQualityReply = t.TypeOf<typeof qualityReplyMessage>;
+
+
 
 const inputMessage = t.type({
   ...baseMessage,
@@ -76,6 +85,8 @@ const inputMessage = t.type({
 
 export type MessageInput = t.TypeOf<typeof inputMessage>;
 
+
+
 const inputAckMessage = t.type({
   ...baseMessage,
   type: t.literal('inputAck'),
@@ -86,12 +97,16 @@ const inputAckMessage = t.type({
 
 export type MessageInputAck = t.TypeOf<typeof inputAckMessage>;
 
+
+
 const keepAliveMessage = t.type({
   ...baseMessage,
   type: t.literal('keepAlive'),
 });
 
 export type MessageKeepAlive = t.TypeOf<typeof keepAliveMessage>;
+
+
 
 const telegraphMessage = t.union([
   syncRequestMessage,
@@ -102,9 +117,15 @@ const telegraphMessage = t.union([
   inputAckMessage,
   keepAliveMessage,
 ]);
+
+
+
 export type TelegraphMessage = t.TypeOf<typeof telegraphMessage>;
 
+
+
 export function parseTelegraphMessage(data: unknown): TelegraphMessage | null {
+
   const result = telegraphMessage.decode(data);
 
   if (isLeft(result)) {
@@ -114,4 +135,7 @@ export function parseTelegraphMessage(data: unknown): TelegraphMessage | null {
   }
 
   return result.right;
+
 }
+
+
