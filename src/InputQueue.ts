@@ -193,51 +193,52 @@ class InputQueue {
 
   getInput(requestedFrame: number): GameInput {
 
-    assert(
-      this.firstIncorrectFrame === -1,
-      'Cannot get input when a prediction error is present!'
-    );
+    assert(this.firstIncorrectFrame === -1, 'Cannot get input when a prediction error is present!');
 
     // We store this for use in the addInput() logic below.
     this.lastFrameRequested = requestedFrame;
 
     const tailFrame = this.inputs[this.tail].frame;
-    assert(
-      requestedFrame >= tailFrame,
-      `Cannot request frame earlier than queue tail (tried to get ${requestedFrame}, tail is at ${tailFrame})`
-    );
+    assert(requestedFrame >= tailFrame, `Can't get frame ${requestedFrame}, is earlier than queue tail ${tailFrame}`);
+
 
     if (!this.prediction) {
 
       const offset = requestedFrame - this.inputs[this.tail].frame;
 
-      if (offset < this.length) {
-        // hurray!! this offset is in our confirmed queue
+
+      if (offset < this.length) { // hurray!! this offset is in our confirmed queue
+
         const arrOffset = (offset + this.tail) % INPUT_QUEUE_LENGTH;
+
         assert(
           this.inputs[arrOffset].frame === requestedFrame,
           'RequestedFrame did not match retrieved confirmed input'
         );
+
         return this.inputs[arrOffset];
+
       }
 
-      // time to predict!!
-      if (requestedFrame === 0 || this.lastAddedFrame === -1) {
-        // well... okay, we don't have anything to use to predict it
+
+      const hasSomethingToPredict = ( (requestedFrame === 0 || this.lastAddedFrame === -1) );
+      if (! hasSomethingToPredict) {
         this.prediction = { frame: 0, inputs: [] };
       } else {
+
         // THE HEART OF GGPO: JUST USE THE LAST DANG FRAME
         const previousInput = this.inputs[previousFrame(this.head)];
         this.prediction = {
           frame  : previousInput.frame + 1,
           inputs : previousInput.inputs,
         };
+
       }
 
     }
 
-    // we specifically return the requested frame here, since this.prediction
-    // stays at frame+1 forever
+
+    // we specifically return the requested frame here, since this.prediction stays at frame+1 forever
     return {
       frame  : requestedFrame,
       inputs : this.prediction.inputs,
@@ -346,9 +347,7 @@ class InputQueue {
     );
 
     // add frame to the queue
-    log(
-      `Adding frame ${frame} (head: ${this.head}, tail: ${this.tail}, length: ${this.length})`
-    );
+    log(`Adding frame ${frame} (head: ${this.head}, tail: ${this.tail}, length: ${this.length})`);
 
     this.inputs[this.head] = { ...input, frame };
     this.head              = (this.head + 1) % INPUT_QUEUE_LENGTH;
@@ -363,25 +362,18 @@ class InputQueue {
         'Tried to overwrite prediction with new input, but prediction was a different frame'
       );
 
-      if (
-        this.firstIncorrectFrame === -1 &&
-        !equalInputs(this.prediction, input)
-      ) {
-        // whoops, found an error
-        this.firstIncorrectFrame = frame;
-      }
+      const FoundAnError = (this.firstIncorrectFrame === -1)
+                        && (!( equalInputs(this.prediction, input) ));
 
-      if (
-        this.prediction.frame === this.lastFrameRequested &&
-        this.firstIncorrectFrame === -1
-      ) {
-        // whoo, our prediction was right
-        this.prediction = null;
-      } else {
-        // our prediction was not right :( we increment the count for the next
-        // added input
-        this.prediction.frame += 1;
-      }
+      if (FoundAnError) { this.firstIncorrectFrame = frame; }
+
+
+      const PredictionWasRight = (this.prediction.frame === this.lastFrameRequested)
+                              && (this.firstIncorrectFrame === -1);
+
+      if (PredictionWasRight) { this.prediction        = null; }
+      else                    { this.prediction.frame += 1; } // :( we increment the count for the next added input
+
     }
 
     assert(this.length <= INPUT_QUEUE_LENGTH, 'InputQueue overflow maxlength');
