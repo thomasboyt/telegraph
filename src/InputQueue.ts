@@ -49,9 +49,7 @@ export class InputQueue {
 
   private frameDelay = 0;
 
-  // TODO: there's probably a more idiomatic way to do this...
-  private inputs: GameInput[] = new Array(INPUT_QUEUE_LENGTH)
-    .fill({ frame: 0, inputs: [] });
+  private inputs: GameInput[] = new Array(INPUT_QUEUE_LENGTH).fill({ frame: 0, inputs: [] });
 
   private prediction: GameInput | null = null;
 
@@ -168,7 +166,7 @@ export class InputQueue {
     const tailFrame = this.inputs[this.tail].frame;
     assert(
       requestedFrame >= tailFrame,
-      `InputQueue: cannot request frame earlier than queue tail (tried to get ${requestedFrame}, tail is at ${tailFrame}`
+      `InputQueue: cannot request frame earlier than queue tail (tried to get ${requestedFrame}, tail is at ${tailFrame})`
     );
 
     if (!this.prediction) {
@@ -214,7 +212,7 @@ export class InputQueue {
     assert(
       this.lastUserAddedFrame === -1 ||
         input.frame === this.lastUserAddedFrame + 1,
-      `InputQueue: Received input out of order (frame #${input.frame}, last frame was ${this.lastUserAddedFrame}`
+      `InputQueue: Received input out of order (frame #${input.frame}, last frame was ${this.lastUserAddedFrame})`
     );
     this.lastUserAddedFrame = input.frame;
 
@@ -244,7 +242,7 @@ export class InputQueue {
       // shoved a frame into the system.  In this case, there's no room on the
       // queue.  Toss it."
       log(
-        `[InputQueue] Dropping input frame ${frame} (expected next to be ${expectedFrame}`
+        `[InputQueue] Dropping input frame ${frame} (expected next to be ${expectedFrame})`
       );
       return -1;
     }
