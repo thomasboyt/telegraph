@@ -94,7 +94,7 @@ export class P2PBackend {
     cb: (endpoint: PeerJSEndpoint, queueIdx: number) => void
   ): void {
 
-    this.endpoints.forEach((endpoint, idx) => {
+    this.endpoints.forEach( (endpoint, idx) => {
       if (!endpoint) { return; }
       cb(endpoint, idx);
     });
@@ -173,12 +173,9 @@ export class P2PBackend {
     // i do not know why we need this conditional wrapper and neither does ggpo:
     // https://github.com/pond3r/ggpo/blob/master/src/lib/ggpo/backends/p2p.cpp#L291
 
-    if (input.frame !== -1) {
-
-      // indicate we have a confirmed frame for this player
+    if (input.frame !== -1) { // indicate we have a confirmed frame for this player
       this.localConnectionStatus[queueIdx].lastFrame = input.frame;
       this.forEachEndpoint(endpoint => endpoint.sendInput(input));
-
     }
 
     return { code: 'ok' };
@@ -440,12 +437,10 @@ export class P2PBackend {
 
     const currentRemoteFrame = queueStatus.lastFrame,
           newRF              = evt.input.input.frame,
-          nextRF             = currentRemoteFrame + 1;
+          nextRF             = currentRemoteFrame + 1,
+          outOfOrder         = currentRemoteFrame === -1 || newRF === nextRF;
 
-    assert(
-      currentRemoteFrame === -1 || newRF === nextRF,
-      `Out of order remote frame (wanted ${nextRF}, got ${newRF})`
-    );
+    assert(outOfOrder, `Out-of-order remote frame (wanted ${nextRF}, got ${newRF})`);
 
     this.sync.addRemoteInput(queueIdx, evt.input.input);
     this.localConnectionStatus[queueIdx].lastFrame = evt.input.input.frame;
@@ -469,9 +464,7 @@ export class P2PBackend {
    * decisions (though I'm not sure where those "decisions" come from)
    */
 
-  disconnectPlayer(
-    handle: PlayerHandle
-  ): VoidResult<
+  disconnectPlayer(handle: PlayerHandle): VoidResult<
     ResultOk | ResultInvalidPlayerHandle | ResultPlayerAlreadyDisconnected
   > {
 
@@ -480,27 +473,17 @@ export class P2PBackend {
 
     const queueIdx = result.value!;  // TODO(StoneCypher): fix this
 
-    if (this.localConnectionStatus[queueIdx].disconnected) {
-      return { code: 'playerAlreadyDisconnected' };
-    }
+    if (this.localConnectionStatus[queueIdx].disconnected) { return { code: 'playerAlreadyDisconnected' }; }
 
     const endpoint = this.getEndpoint(queueIdx);
 
-    if (!endpoint) {
-      // local player is disconnecting, so mark all other endpoints as disconnected
-      const currentFrame = this.sync.getFrameCount();
+    if (!endpoint) { // local player is disconnecting, so mark all other endpoints as disconnected
 
-      this.forEachEndpoint((endpoint, queueIdx) => {
-        this.disconnectPlayerQueue(queueIdx, currentFrame);
-      });
+      const currentFrame = this.sync.getFrameCount();
+      this.forEachEndpoint( (endpoint, queueIdx) => this.disconnectPlayerQueue(queueIdx, currentFrame) );
 
     } else {
-
-      this.disconnectPlayerQueue(
-        queueIdx,
-        this.localConnectionStatus[queueIdx].lastFrame
-      );
-
+      this.disconnectPlayerQueue(queueIdx, this.localConnectionStatus[queueIdx].lastFrame);
     }
 
     return { code: 'ok' };
@@ -517,26 +500,20 @@ export class P2PBackend {
           endpoint   = this.getEndpoint(queueIdx);
 
     // kinda think we shouldn't need this
-    assert(
-      endpoint !== null,
-      `P2PBackend: Tried to disconnect nonexistent player queue ${queueIdx}`
-    );
+    assert(endpoint !== null, `P2PBackend: Tried to disconnect nonexistent player queue ${queueIdx}`);
 
-    endpoint!.disconnect();
+    endpoint!.disconnect();  // TODO(StoneCypher): fix this
 
-    this.localConnectionStatus[queueIdx].disconnected = true;
-    this.localConnectionStatus[queueIdx].lastFrame = syncTo;
+    const lCSqI              = this.localConnectionStatus[queueIdx];
+          lCSqI.disconnected = true;
+          lCSqI.lastFrame    = syncTo;
 
     // roll back to where player disconnected
-    if (syncTo < frameCount) {
-      this.sync.adjustSimulation(syncTo);
-    }
+    if (syncTo < frameCount) { this.sync.adjustSimulation(syncTo); }
 
     const event: TelegraphEventDisconnected = {
       type         : 'disconnected',
-      disconnected : {
-        playerHandle : this.queueIdxToPlayerHandle(queueIdx),
-      },
+      disconnected : { playerHandle : this.queueIdxToPlayerHandle(queueIdx) }
     };
 
     this.callbacks.onEvent(event);
@@ -550,15 +527,10 @@ export class P2PBackend {
 
 
 
-  getNetworkStats(
-    handle: PlayerHandle
-  ): ValueResult<TelegraphNetworkStats, ResultOk | ResultInvalidPlayerHandle> {
+  getNetworkStats(handle: PlayerHandle): ValueResult<TelegraphNetworkStats, ResultOk | ResultInvalidPlayerHandle> {
 
     const result = this.playerHandleToQueueIdx(handle);
-
-    if (result.code !== 'ok') {
-      return { code: result.code, value: null };
-    }
+    if (result.code !== 'ok') { return { code: result.code, value: null }; }
 
     const stats = this.getEndpoint(result.value!)?.getNetworkStats() ?? {
       // placeholder in case you get local player for some reason
@@ -601,17 +573,14 @@ export class P2PBackend {
 
 
 
-  private playerHandleToQueueIdx(
-    handle: PlayerHandle
-  ): ValueResult<number, ResultOk | ResultInvalidPlayerHandle> {
+  private playerHandleToQueueIdx(handle: PlayerHandle): ValueResult<number, ResultOk | ResultInvalidPlayerHandle> {
 
-    const offset = handle - 1;
+    const offset  = handle - 1,
+          invalid = (offset < 0 || offset >= this.numPlayers);
 
-    if (offset < 0 || offset >= this.numPlayers) {
-      return { value: null, code: 'invalidPlayerHandle' };
-    }
-
-    return { value: offset, code: 'ok' };
+    return invalid
+      ? { value: null,   code: 'invalidPlayerHandle' }
+      : { value: offset, code: 'ok' };
 
   }
 
@@ -648,10 +617,7 @@ export class P2PBackend {
 
 
 
-  setFrameDelay(
-    handle: PlayerHandle,
-    delay: number
-  ): VoidResult<ResultOk | ResultInvalidPlayerHandle> {
+  setFrameDelay(handle: PlayerHandle, delay: number): VoidResult<ResultOk | ResultInvalidPlayerHandle> {
 
     const result = this.playerHandleToQueueIdx(handle);
     if (result.code !== 'ok') { return { code: result.code }; }

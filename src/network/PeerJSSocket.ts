@@ -51,14 +51,10 @@ export class PeerJSSocket {
   registerConnection = (conn: DataConnection) : void => {
 
     this.connections[conn.peer] = conn;
+    conn.serialization          = 'json';
 
-    conn.serialization = 'json';
-
-    conn.on('close', () => {
-      console.log(`closed connection with peer ${conn.peer}`);
-    });
-
-    conn.on('data', (data) => {
+    conn.on('close', ()   => console.log(`closed connection with peer ${conn.peer}`) );
+    conn.on('data',  data => {
 
       const message = parseTelegraphMessage(data);
 
@@ -67,7 +63,7 @@ export class PeerJSSocket {
         return;
       }
 
-      log('[messages] Received', message);
+      log('[messages] Received',          message);
       this.callbacks.onMessage(conn.peer, message);
 
     });
