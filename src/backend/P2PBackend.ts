@@ -287,9 +287,8 @@ export class P2PBackend {
 
     for (let queueIdx = 0; queueIdx < this.numPlayers; ++queueIdx) {
 
-      const endpoint = this.getEndpoint(queueIdx);
-
-      let queueConnected = true;
+      const endpoint       = this.getEndpoint(queueIdx);
+      let   queueConnected = true;
 
       if (endpoint && endpoint.isRunning()) {
         const status   = endpoint.getPeerConnectStatus(queueIdx);
@@ -317,9 +316,8 @@ export class P2PBackend {
 
 
 
-  private pollNPlayers(): number {
-    // TODO
-    throw new Error('Not implemented yet');
+  private pollNPlayers(): number { // TODO
+    throw new Error('Not yet implemented');
   }
 
 
@@ -342,7 +340,7 @@ export class P2PBackend {
 
     this.forEachEndpoint( (endpoint, queueIdx) => {
 
-      const handle = this.queueIdxToPlayerHandle(queueIdx);
+      const playerHandle = this.queueIdxToPlayerHandle(queueIdx);
 
       endpoint.processEventsQueue((evt) => {
 
@@ -357,16 +355,12 @@ export class P2PBackend {
 
         } else if (evt.type === 'disconnected') {
 
-          this.disconnectPlayer(handle);
+          this.disconnectPlayer(playerHandle);
 
 
         } else if (evt.type === 'connected') {
 
-          const outgoing: TelegraphEventConnected = {
-            type      : 'connected',
-            connected : { playerHandle: handle }
-          };
-
+          const outgoing: TelegraphEventConnected = { type: 'connected', connected: { playerHandle } };
           this.callbacks.onEvent(outgoing);
 
 
@@ -375,7 +369,7 @@ export class P2PBackend {
           const outgoing: TelegraphEventSynchronizing = {
             type          : 'synchronizing',
             synchronizing : {
-              playerHandle : handle,
+              playerHandle,
               count        : evt.synchronizing.count,
               total        : evt.synchronizing.total
             }
@@ -386,23 +380,17 @@ export class P2PBackend {
 
         } else if (evt.type === 'synchronized') {
 
-          const outgoing: TelegraphEventSynchronized = {
-            type         : 'synchronized',
-            synchronized : { playerHandle: handle }
-          };
+          const outgoing: TelegraphEventSynchronized = { type: 'synchronized', synchronized: { playerHandle } };
 
           this.callbacks.onEvent(outgoing);
-          this.checkInitialSync();  // since this player has synchronized, check to see if all players have synchronized!
+          this.checkInitialSync();  // since this player has synchronized, check to see if all players have synchronized
 
 
         } else if (evt.type === 'interrupted') {
 
           const outgoing: TelegraphEventConnectionInterrupted = {
             type                  : 'connectionInterrupted',
-            connectionInterrupted : {
-              playerHandle      : handle,
-              disconnectTimeout : evt.interrupted.disconnectTimeout
-            }
+            connectionInterrupted : { playerHandle, disconnectTimeout: evt.interrupted.disconnectTimeout }
           };
 
           this.callbacks.onEvent(outgoing);
@@ -411,8 +399,8 @@ export class P2PBackend {
         } else if (evt.type === 'resumed') {
 
           const outgoing: TelegraphEventConnectionResumed = {
-            type              : 'connectionResumed',
-            connectionResumed : { playerHandle: handle }
+            type: 'connectionResumed',
+            connectionResumed: { playerHandle }
           };
 
           this.callbacks.onEvent(outgoing);
@@ -547,13 +535,8 @@ export class P2PBackend {
 
   private onMessage(fromId: string, message: TelegraphMessage): void {
 
-    const endpoint = this.endpoints.find(
-      (endpoint) => endpoint?.getPeerId() === fromId
-    );
-
-    if (!endpoint) {
-      throw new Error(`no endpoint found for peer ID ${fromId}`);
-    }
+    const endpoint = this.endpoints.find( endpoint => endpoint?.getPeerId() === fromId );
+    if (!endpoint) { throw new Error(`no endpoint found for peer ID ${fromId}`); }
 
     endpoint.onMessage(message);
     this.postProcessUpdate();
@@ -564,9 +547,7 @@ export class P2PBackend {
 
 
 
-  private queueIdxToPlayerHandle(queue: number): number {
-    return queue + 1;
-  }
+  private queueIdxToPlayerHandle(queue: number): number { return queue + 1; }
 
 
 
