@@ -37,16 +37,11 @@ export class PeerJSSocket {
     this.peer      = peer;
 
     for (const conn of Object.values(this.peer.connections)) {
-      this.registerConnection((conn as DataConnection[])[0]);
+      this.registerConnection( (conn as DataConnection[])[0] );
     }
 
-    this.peer.on('disconnected', () => {
-      console.warn('Disconnected from signaling server');
-    });
-
-    this.peer.on('error', (error) => {
-      console.error('peer error', error);
-    });
+    this.peer.on('disconnected', ()    => console.warn('Disconnected from signaling server') );
+    this.peer.on('error',        error => console.error('peer error', error)                 );
 
   }
 
@@ -65,13 +60,17 @@ export class PeerJSSocket {
     });
 
     conn.on('data', (data) => {
+
       const message = parseTelegraphMessage(data);
+
       if (!message) {
         console.warn('Received invalid message', data);
         return;
       }
+
       log('[messages] Received', message);
       this.callbacks.onMessage(conn.peer, message);
+
     });
 
   };
