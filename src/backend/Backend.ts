@@ -1,4 +1,6 @@
+
 import { Player, PlayerHandle, TelegraphNetworkStats } from '../types';
+
 import {
   ValueResult,
   VoidResult,
@@ -10,7 +12,12 @@ import {
   SyncInputResult,
 } from '../resultTypes';
 
+
+
+
+
 export abstract class Backend {
+
   abstract addPlayer(player: Player): AddPlayerResult;
 
   abstract addLocalInput(
@@ -21,11 +28,13 @@ export abstract class Backend {
   abstract syncInput(): SyncInputResult;
 
   abstract incrementFrame(): VoidResult<ResultOk>;
+
   abstract disconnectPlayer(
     handle: PlayerHandle
   ): VoidResult<
     ResultOk | ResultInvalidPlayerHandle | ResultPlayerAlreadyDisconnected
   >;
+
   abstract getNetworkStats(
     handle: PlayerHandle
   ): ValueResult<TelegraphNetworkStats, ResultOk | ResultInvalidPlayerHandle>;
@@ -39,4 +48,5 @@ export abstract class Backend {
   ): VoidResult<ResultOk | ResultInvalidPlayerHandle>;
 
   abstract postProcessUpdate(): void;
+
 }
