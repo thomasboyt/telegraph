@@ -8,7 +8,7 @@ import { INPUT_QUEUE_LENGTH } from './constants';
 import isEqual from 'lodash.isequal';
 
 import { assert }    from './util/assert';
-import { log }       from './log';
+import { log }       from './util';
 import { GameInput } from './types';
 
 

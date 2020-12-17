@@ -11,7 +11,7 @@ import { ConnectionStatus, InputValues, TelegraphNetworkStats } from '../types';
 import { GameInput }                                            from '../InputQueue';
 import { RingBuffer }                                           from '../util/RingBuffer';
 import { assert }                                               from '../util/assert';
-import { log }                                                  from '../log';
+import { log }                                                  from '../util';
 
 import { PeerJSSocket } from './PeerJSSocket';
 

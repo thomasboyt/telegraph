@@ -5,7 +5,7 @@ import { PeerJSSocket }      from '../network/PeerJSSocket';
 import { PeerJSEndpoint }    from '../network/PeerJSEndpoint';
 import { assert }            from '../util/assert';
 import { TelegraphMessage }  from '../network/messages';
-import { log }               from '../log';
+import { log }               from '../util';
 
 import {
   Player,

@@ -14,7 +14,7 @@ import {
 import { InputQueue, GameInput } from './InputQueue';
 import { SyncInputResultValue }  from './resultTypes';
 import { assert }                from './util/assert';
-import { log }                   from './log';
+import { log }                   from './util';
 
 
 
